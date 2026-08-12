@@ -16,6 +16,8 @@
   const screenMap = new Map(data.screens.map((screen) => [screen.id, screen]));
   const flow = data.screens.map((screen) => screen.id);
   let micTimer = null;
+  let chatTimer = null;
+  let typingTimer = null;
   let feedAnimating = false;
   let feedStartY = 0;
   let feedDragY = 0;
@@ -49,6 +51,7 @@
     feedIndex: 0,
     mic: "idle",
     hintOpen: false,
+    chatPhase: "first-typing",
     expressionIndex: 0
   };
 
@@ -96,7 +99,11 @@
   function go(id, options = {}) {
     if (!screenMap.has(id)) id = "splash";
     if (micTimer) window.clearTimeout(micTimer);
+    if (chatTimer) window.clearTimeout(chatTimer);
+    if (typingTimer) window.clearInterval(typingTimer);
     state.mic = "idle";
+    if (id === "chat-context") state.chatPhase = "first-typing";
+    if (id === "chat-opening") state.chatPhase = "second-typing";
     state.screenId = id;
     setHash(id, options.replace);
     render();
@@ -117,14 +124,15 @@
   }
 
   function fitPhone() {
-    const scale = Math.min(
-      1.08,
-      Math.max(0.72, (productStage.clientHeight - 52) / 852),
-      Math.max(0.72, (productStage.clientWidth - 32) / 393)
-    );
+    const widthScale = (productStage.clientWidth - 24) / 393;
+    const compactLayout = window.innerWidth <= 820;
+    const scale = compactLayout
+      ? Math.min(1, widthScale)
+      : Math.min(1.45, widthScale);
     phoneExhibit.style.width = `${393 * scale}px`;
     phoneExhibit.style.height = `${852 * scale}px`;
     phoneShell.style.transform = `scale(${scale})`;
+    productStage.classList.toggle("stage-needs-scroll", (852 * scale) + 52 > productStage.clientHeight);
   }
 
   function fitFeedHeadline() {
@@ -293,9 +301,13 @@
     const raw = String(value || "");
     const mention = `@${displayName()}`;
     const text = raw.replaceAll("@Momo", mention);
-    const splitAt = Math.min(text.length, Math.max(34, Math.round(text.length * .58)));
-    const lit = escapeHTML(text.slice(0, splitAt)).replace(escapeHTML(mention), `<span class="mention">${escapeHTML(mention)}</span>`);
-    return `<span class="typing-lit">${lit}</span>${escapeHTML(text.slice(splitAt))}`;
+    const parts = text.split(mention);
+    const tokens = [];
+    parts.forEach((part, index) => {
+      if (index > 0) tokens.push({ text: mention, mention: true });
+      Array.from(part).forEach((char) => tokens.push({ text: char, mention: false }));
+    });
+    return tokens.map((token) => `<span class="typing-char${token.mention ? " mention" : ""}">${escapeHTML(token.text)}</span>`).join("");
   }
 
   function speakerIcon() {
@@ -329,11 +341,12 @@
   }
 
   function renderChatContext() {
-    return `<section class="app-screen chat-screen whole-screen-next" data-next>${chatHeader()}<main class="chat-history">${contextBlock()}${messageHTML(data.opening[0], "npc", 0, "typing")}</main><div class="chat-status"><p><strong style="color:${data.opening[0].color}">${escapeHTML(data.opening[0].speaker)}</strong> 正在说话…</p></div></section>`;
+    const typing = state.chatPhase === "first-typing";
+    return `<section class="app-screen chat-screen">${chatHeader()}<main class="chat-history">${contextBlock()}${messageHTML(data.opening[0], "npc", 0, typing ? "typing" : "complete")}</main>${typing ? `<div class="chat-status"><p><strong style="color:${data.opening[0].color}">${escapeHTML(data.opening[0].speaker)}</strong> 正在说话…</p></div>` : '<div class="chat-bottom"><button class="warm-button" type="button" data-chat-continue>点击继续</button></div>'}</section>`;
   }
 
   function renderOpening() {
-    return `<section class="app-screen chat-screen">${chatHeader()}<main class="chat-history">${contextBlock()}${messageHTML(data.opening[0], "npc")}</main><div class="chat-bottom"><button class="warm-button" type="button" data-next>点击继续</button></div></section>`;
+    return `<section class="app-screen chat-screen">${chatHeader()}<main class="chat-history">${contextBlock()}${messageHTML(data.opening[0], "npc")}${messageHTML(data.opening[1], "npc", 0, "typing")}</main><div class="chat-status"><p><strong style="color:${data.opening[1].color}">${escapeHTML(data.opening[1].speaker)}</strong> 正在说话…</p></div></section>`;
   }
 
   function micIcon() {
@@ -463,6 +476,36 @@
     });
     const history = screenRoot.querySelector(".chat-history");
     if (history) history.scrollTop = history.scrollHeight;
+    if (state.screenId === "chat-context" && state.chatPhase === "first-typing") startNpcTyping("first-ready");
+    if (state.screenId === "chat-opening" && state.chatPhase === "second-typing") startNpcTyping("second-ready");
+  }
+
+  function startNpcTyping(donePhase) {
+    const chars = Array.from(screenRoot.querySelectorAll(".npc-row-typing .typing-char"));
+    if (!chars.length) return;
+    let cursor = 0;
+    typingTimer = window.setInterval(() => {
+      if (!chars[cursor]) {
+        window.clearInterval(typingTimer);
+        typingTimer = null;
+        chatTimer = window.setTimeout(() => {
+          state.chatPhase = donePhase;
+          if (donePhase === "second-ready") return go("speak-1", { replace: true });
+          render();
+        }, 420);
+        return;
+      }
+      chars[cursor].classList.add("lit");
+      cursor += 1;
+    }, 42);
+  }
+
+  function continueOpeningDialogue() {
+    if (state.screenId !== "chat-context" || state.chatPhase !== "first-ready") return;
+    state.chatPhase = "second-typing";
+    state.screenId = "chat-opening";
+    setHash("chat-opening");
+    render();
   }
 
   function handleMic() {
@@ -480,6 +523,7 @@
     const target = event.target.closest("button, [data-next]");
     if (!target) return;
     if (target.matches("[data-go]")) return go(target.dataset.go);
+    if (target.matches("[data-chat-continue]")) return continueOpeningDialogue();
     if (target.matches("[data-next]")) return next();
     if (target.matches("[data-feed-next]")) return go("chat-context");
     if (target.matches("[data-mic]")) return handleMic();

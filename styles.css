@@ -68,6 +68,7 @@ button { cursor: pointer; }
 .sidebar-footer button { justify-self: start; padding: 0 0 3px; border: 0; border-bottom: 1px solid #8a6f3a; background: transparent; color: #4a4438; font-family: var(--serif); font-size: 12px; }
 
 .product-stage { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100dvh; padding: 20px 16px; overflow: hidden; background: var(--stage); }
+.product-stage.stage-needs-scroll { justify-content: flex-start; overflow-y: auto; }
 .phone-exhibit { position: relative; z-index: 2; flex: 0 0 auto; }
 .phone-shell { position: relative; width: 393px; height: 852px; transform-origin: top left; border: 8px solid #1a1a1a; border-radius: 48px; overflow: hidden; background: #1a1a1a; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
 .phone-screen { position: relative; display: flex; width: 100%; height: 100%; flex-direction: column; overflow: hidden; background: var(--paper); }
@@ -180,7 +181,10 @@ button { cursor: pointer; }
 .npc-row small { display: block; margin-top: 5px; color: #999; font-size: 12px; line-height: 1.5; }
 .mention { color: #7c5cbf; font-weight: 600; }
 .npc-bubble-typing > p { color: #c9c8c7; }
-.npc-bubble-typing .typing-lit { color: #1a1a1a; }
+.typing-char { color: #c9c8c7; transition: color .08s linear; }
+.typing-char.lit { color: #1a1a1a; }
+.typing-char.mention { color: rgba(124,92,191,.32); }
+.typing-char.mention.lit { color: #7c5cbf; }
 .tts-icon { display: flex; justify-content: flex-end; margin-top: 3px; color: #ccc; }
 .tts-icon svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 2; }
 .user-row { display: flex; justify-content: flex-end; padding: 5px 0; }
@@ -315,7 +319,7 @@ button { cursor: pointer; }
   .experience-sidebar.open { transform: translateX(0); }
   .sidebar-overlay { position: fixed; z-index: 99; inset: 0; display: block; background: rgba(20,18,15,.5); opacity: 0; pointer-events: none; transition: opacity .2s; }
   .sidebar-overlay.show { opacity: 1; pointer-events: auto; }
-  .product-stage { width: 100%; min-height: 100dvh; height: auto; padding: 56px 8px 18px; }
+  .product-stage { width: 100%; min-height: 100dvh; height: auto; padding: 64px 8px 28px; overflow: visible; }
   .phone-exhibit { margin-bottom: 0; transform: none; }
   .stage-controls { display: none; }
   .mobile-menu-button { position: fixed; z-index: 101; top: 12px; left: 12px; display: grid; width: 40px; height: 40px; place-items: center; border: 1px solid #a89d80; border-radius: 8px; background: #fbf6e8; box-shadow: 0 2px 6px rgba(20,18,15,.12); font-size: 18px; }
