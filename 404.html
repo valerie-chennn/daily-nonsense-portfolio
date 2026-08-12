@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="The Daily Nonsense — AI English group-chat product demo by Valerie Chen." />
+    <meta name="theme-color" content="#17140f" />
+    <title>The Daily Nonsense · Interactive Product Demo</title>
+    <link rel="preload" href="assets/covers/room-001.webp" as="image" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="data.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body data-chapter="onboarding">
+    <a class="skip-link" href="#product-screen">跳到产品演示</a>
+    <button id="mobile-menu-button" class="mobile-menu-button" type="button" aria-label="打开页面目录" aria-expanded="false">☰</button>
+    <div id="mobile-page-label" class="mobile-page-label">开屏</div>
+    <div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
+
+    <div class="portfolio-app">
+      <aside id="experience-sidebar" class="experience-sidebar" aria-label="产品页面目录">
+        <header class="sidebar-brand">
+          <p class="sidebar-eyebrow">THE DAILY NONSENSE · DEMO</p>
+          <h1>AI 英语群聊产品</h1>
+          <p>17 screens · interactive · playable</p>
+        </header>
+        <nav id="experience-nav-content" class="experience-nav-content" aria-label="全部产品页面"></nav>
+        <footer class="sidebar-footer">
+          <p>VALERIE CHEN · AI PRODUCT MANAGER</p>
+          <button type="button" data-open-modal="about">项目说明</button>
+        </footer>
+      </aside>
+
+      <main class="product-stage">
+        <div class="phone-exhibit">
+          <div class="phone-shell" aria-label="The Daily Nonsense 移动产品演示">
+            <div class="phone-speaker" aria-hidden="true"></div>
+            <div id="product-screen" class="phone-screen" tabindex="-1"></div>
+          </div>
+        </div>
+        <p id="stage-controls" class="stage-controls">PAGE 01 / 17 · 点击手机继续</p>
+      </main>
+    </div>
+
+    <dialog id="about-dialog" class="portfolio-dialog" aria-labelledby="about-title">
+      <div class="dialog-frame">
+        <header class="dialog-header">
+          <div>
+            <p>ABOUT THE PRODUCT</p>
+            <h2 id="about-title" tabindex="-1">The Daily Nonsense</h2>
+          </div>
+          <button class="dialog-close" type="button" data-close-modal aria-label="关闭项目说明">×</button>
+        </header>
+        <p class="about-lead">在荒诞群聊里开口，用真实回应练习英语。</p>
+        <dl class="about-facts">
+          <div><dt>作者</dt><dd>Valerie Chen</dd></div>
+          <div><dt>角色</dt><dd>AI Product Manager</dd></div>
+          <div><dt>核心体验</dt><dd>Feed 发现话题 · 多轮自由表达 · AI 角色接话 · 表达沉淀</dd></div>
+          <div><dt>展示边界</dt><dd>界面与内容来自实际 V2 产品；模型、语音服务采用确定性模拟。</dd></div>
+        </dl>
+        <button id="restart-demo" class="restart-button" type="button">重新开始演示</button>
+      </div>
+    </dialog>
+
+    <noscript>本交互演示需要启用 JavaScript。</noscript>
+  </body>
+</html>
