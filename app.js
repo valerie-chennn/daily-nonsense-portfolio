@@ -14,13 +14,41 @@
   const flow = data.screens.map((screen) => screen.id);
   let micTimer = null;
 
+  const ADJ = [
+    "Sleepy", "Curious", "Clueless", "Brave", "Lazy", "Dramatic",
+    "Sneaky", "Reckless", "Polite", "Grumpy", "Cheerful", "Confused",
+    "Bold", "Gentle", "Chaotic", "Hungry"
+  ];
+  const NOUN = [
+    "Intern", "Diplomat", "Spy", "Accountant", "Witness", "Consultant",
+    "Janitor", "CEO", "Penguin", "Lobster", "Toaster", "Astronaut",
+    "Pirate", "Professor", "Detective", "Ghost"
+  ];
+
+  function randomItem(list) {
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  function generateName() {
+    const roll = Math.random();
+    if (roll < 0.1) return randomItem(NOUN);
+    if (roll < 0.2) return randomItem(ADJ);
+    return `${randomItem(ADJ)} ${randomItem(NOUN)}`;
+  }
+
   const state = {
     screenId: "splash",
-    name: "Momo",
+    name: "",
+    namePlaceholder: generateName(),
     feedIndex: 0,
     mic: "idle",
+    hintOpen: false,
     expressionIndex: 0
   };
+
+  function displayName() {
+    return state.name || state.namePlaceholder;
+  }
 
   function escapeHTML(value) {
     return String(value ?? "")
@@ -90,7 +118,7 @@
           <h2><span>The Daily</span><span>Nonsense</span></h2>
           <div class="splash-ruler"><i></i><b></b><i></i></div>
           <h3>每日胡说</h3>
-          <p>刷到一个话题，开口加入群聊</p>
+          <p>边吃瓜，边开口练英语。</p>
         </div>
         <div class="splash-lines bottom"><i></i><i></i></div>
         <button class="screen-hint" type="button" data-next>点击进入</button>
@@ -104,7 +132,7 @@
           <p class="micro-kicker">BEFORE YOU SPEAK</p>
           <h2>你的花名</h2>
           <p class="onboarding-copy">它会出现在接下来的群聊里。</p>
-          <label class="name-field"><input id="nickname" value="${escapeHTML(state.name)}" maxlength="12" aria-label="花名" /><button type="button" data-random-name aria-label="随机花名">⚄</button></label>
+          <label class="name-field"><input id="nickname" value="${escapeHTML(state.name)}" placeholder="${escapeHTML(state.namePlaceholder)}" maxlength="30" autocomplete="off" aria-label="花名" /><button type="button" data-random-name aria-label="换一个花名">🎲</button></label>
           <button class="dark-button" type="button" data-start>开始胡说</button>
         </div>
       </section>`;
@@ -113,24 +141,24 @@
   function renderFeedCard(item, buttonText) {
     return `
       <section class="app-screen feed-screen" style="--feed-bg:${item.bg};--feed-header:${item.header};--feed-header-text:${item.headerText};--feed-accent:${item.accent}">
-        <header class="feed-header"><strong>每日胡说</strong><span>${escapeHTML(state.name.slice(0, 1))}</span></header>
+        <header class="feed-header"><strong>每日胡说</strong><span>${escapeHTML(displayName().slice(0, 1))}</span></header>
         <article class="news-card">
           <div class="news-rules"><i></i><i></i></div>
           <div class="news-body">
-            <div class="news-tags"><span>${escapeHTML(item.tags[0])}</span><b>${escapeHTML(item.difficulty)}</b></div>
+            <div class="news-tags"><span>${escapeHTML(item.tags[0])}</span></div>
             <p class="news-source">${escapeHTML(item.source)}</p>
             <i class="headline-rule"></i>
             <h2>${item.headline.map(escapeHTML).join("<br>")}</h2>
             <figure><img src="${item.cover}" alt="${escapeHTML(item.headline.join("，"))}" /></figure>
-            <div class="statements-label"><span>当事人回应 / STATEMENTS</span><i></i></div>
+            <div class="statements-label"><span>STATEMENTS</span><i></i></div>
             <div class="statements-card">
-              ${item.reactions.map((reaction) => `
-                <div class="statement">
-                  <span class="statement-avatar" style="background:${reaction.color}">${escapeHTML(reaction.name.slice(0, 1))}</span>
-                  <div><strong style="color:${reaction.color}">${escapeHTML(reaction.name)}</strong><p>${escapeHTML(reaction.en)}</p><small>${escapeHTML(reaction.zh)}</small></div>
+              ${item.reactions.map((reaction, index) => `
+                ${index ? '<i class="statement-separator"></i>' : ''}
+                <div class="statement" style="--statement-color:${reaction.color}">
+                  <strong style="color:${reaction.color}">${escapeHTML(reaction.name)}</strong><p>${escapeHTML(reaction.en)}</p><small>${escapeHTML(reaction.zh)}</small>
                 </div>`).join("")}
             </div>
-            <div class="news-meta"><span>2.4k 人围观</span><i></i><span>186 条评论</span></div>
+            <div class="news-meta"><span>2.3k 人围观</span><i></i><span>128 条评论</span></div>
             <button class="join-button" type="button" data-feed-next>${buttonText}</button>
             <p class="swipe-hint">⌃&nbsp; 上划看下一条</p>
           </div>
@@ -148,9 +176,11 @@
 
   function messageHTML(message, kind, delay = 0) {
     if (kind === "user") {
-      return `<div class="user-row animate-in" style="--delay:${delay}ms"><div><strong>${escapeHTML(state.name)}</strong><p>${escapeHTML(message)}</p></div></div>`;
+      return `<div class="user-row animate-in" style="--delay:${delay}ms"><div><strong>${escapeHTML(displayName())}</strong><p>${escapeHTML(message)}</p></div></div>`;
     }
-    return `<div class="npc-row animate-in" style="--delay:${delay}ms"><span style="background:${message.color}">${escapeHTML(message.avatar)}</span><div><strong style="color:${message.color}">${escapeHTML(message.speaker)}</strong><article><p>${escapeHTML(message.en)}</p><small>${escapeHTML(message.zh)}</small></article></div></div>`;
+    const english = String(message.en || "").replaceAll("@Momo", `@${displayName()}`);
+    const chinese = String(message.zh || "").replaceAll("@Momo", `@${displayName()}`);
+    return `<div class="npc-row animate-in" style="--delay:${delay}ms"><span style="background:${message.color}">${escapeHTML(message.avatar)}</span><div><strong style="color:${message.color}">${escapeHTML(message.speaker)}</strong><article><p>${escapeHTML(english)}</p><small>${escapeHTML(chinese)}</small></article></div></div>`;
   }
 
   function visibleMessages(untilTurn, includeReplies) {
@@ -189,13 +219,13 @@
     const micLabel = state.mic === "recording" ? "录音中… 0:03" : state.mic === "transcribing" ? "识别中…" : "按住说话";
     return `
       <section class="app-screen chat-screen speak-screen">${chatHeader()}
-        <main class="chat-history compact">${renderMessages(history)}</main>
+        <main class="chat-history compact">${contextBlock()}${renderMessages(history)}</main>
         <div class="drag-handle"><i></i></div>
         <section class="speak-panel">
-          <div class="cue-card"><span>💡 参考说法</span><p>${escapeHTML(turn.example)}</p><small>${escapeHTML(turn.cue)}</small></div>
-          <div class="mic-wrap ${state.mic === "recording" ? "recording" : ""}"><i></i><button type="button" data-mic aria-label="${micLabel}">${state.mic === "transcribing" ? '<span class="spinner"></span>' : micIcon()}</button></div>
+          ${state.hintOpen ? `<div class="cue-card"><span>💡 参考说法</span><p>${escapeHTML(turn.example)}</p><small>${escapeHTML(turn.cue)}</small></div>` : ""}
+          <div class="mic-wrap ${state.mic === "recording" ? "recording" : ""}"><i></i><i></i><button type="button" data-mic aria-label="${micLabel}">${state.mic === "transcribing" ? '<span class="spinner"></span>' : micIcon()}</button></div>
           <strong class="mic-label">${micLabel}</strong>
-          <div class="speak-tools"><span>⌨ 文字输入</span><span>💡 提示已展开</span></div>
+          <div class="speak-tools"><button type="button">⌨ 文字输入</button><button type="button" class="${state.hintOpen ? "active" : ""}" data-toggle-hint>💡 ${state.hintOpen ? "提示已展开" : "提示"}</button></div>
         </section>
       </section>`;
   }
@@ -261,8 +291,7 @@
     switch (state.screenId) {
       case "splash": return renderSplash();
       case "onboarding": return renderOnboarding();
-      case "feed": return renderFeedCard(data.feed[1], "上划下一条");
-      case "feed-story": return renderFeedCard(data.feed[2], "Join Chat");
+      case "feed": return renderFeedCard(data.feed.find((item) => item.id === "room-001"), "Join Chat");
       case "chat-context": return renderChatContext();
       case "chat-opening": return renderOpening();
       case "speak-1": return renderSpeak(0);
@@ -310,27 +339,32 @@
     if (!target) return;
     if (target.matches("[data-go]")) return go(target.dataset.go);
     if (target.matches("[data-next]")) return next();
-    if (target.matches("[data-feed-next]")) return next();
+    if (target.matches("[data-feed-next]")) return go("chat-context");
     if (target.matches("[data-mic]")) return handleMic();
+    if (target.matches("[data-toggle-hint]")) {
+      state.hintOpen = !state.hintOpen;
+      return render();
+    }
     if (target.matches("[data-back]")) {
       const index = flow.indexOf(state.screenId);
       return go(flow[Math.max(0, index - 1)]);
     }
     if (target.matches("[data-start]")) {
       const input = document.getElementById("nickname");
-      state.name = input?.value.trim() || "Momo";
+      state.name = input?.value.trim() || state.namePlaceholder;
       return go("feed");
     }
     if (target.matches("[data-random-name]")) {
-      const names = ["Momo", "Nina", "Echo", "Juno"];
-      state.name = names[(names.indexOf(state.name) + 1) % names.length];
+      state.namePlaceholder = generateName();
       return render();
     }
     if (target.matches("[data-open-modal]")) return aboutDialog.showModal();
     if (target.matches("[data-close-modal]")) return aboutDialog.close();
     if (target.id === "restart-demo") {
       aboutDialog.close();
-      state.name = "Momo";
+      state.name = "";
+      state.namePlaceholder = generateName();
+      state.hintOpen = false;
       return go("splash");
     }
   });

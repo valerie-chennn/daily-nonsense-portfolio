@@ -14,7 +14,6 @@
       { id: "splash", group: "onboarding", title: "产品开屏" },
       { id: "onboarding", group: "onboarding", title: "花名设置" },
       { id: "feed", group: "feed", title: "新闻 Feed" },
-      { id: "feed-story", group: "feed", title: "话题详情" },
       { id: "chat-context", group: "chat", title: "加入群聊" },
       { id: "chat-opening", group: "chat", title: "NPC 开场" },
       { id: "speak-1", group: "speak", title: "第一轮开口" },
