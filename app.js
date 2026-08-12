@@ -10,6 +10,9 @@
   const menuButton = document.getElementById("mobile-menu-button");
   const pageLabel = document.getElementById("mobile-page-label");
   const aboutDialog = document.getElementById("about-dialog");
+  const productStage = document.querySelector(".product-stage");
+  const phoneExhibit = document.querySelector(".phone-exhibit");
+  const phoneShell = document.querySelector(".phone-shell");
   const screenMap = new Map(data.screens.map((screen) => [screen.id, screen]));
   const flow = data.screens.map((screen) => screen.id);
   let micTimer = null;
@@ -110,6 +113,30 @@
     return result;
   }
 
+  function fitPhone() {
+    const scale = Math.min(
+      1.08,
+      Math.max(0.72, (productStage.clientHeight - 52) / 852),
+      Math.max(0.72, (productStage.clientWidth - 32) / 393)
+    );
+    phoneExhibit.style.width = `${393 * scale}px`;
+    phoneExhibit.style.height = `${852 * scale}px`;
+    phoneShell.style.transform = `scale(${scale})`;
+  }
+
+  function fitFeedHeadline() {
+    const headline = screenRoot.querySelector(".news-body h2");
+    if (!headline) return;
+    const lines = headline.querySelectorAll("span");
+    if (!lines.length) return;
+    lines.forEach((line) => { line.style.fontSize = "32px"; });
+    const longest = Math.max(...Array.from(lines, (line) => line.scrollWidth));
+    const fontSize = longest > headline.offsetWidth
+      ? Math.max(16, Math.floor(32 * (headline.offsetWidth / longest)))
+      : 32;
+    lines.forEach((line) => { line.style.fontSize = `${fontSize}px`; });
+  }
+
   function renderSplash() {
     return `
       <section class="app-screen splash-screen">
@@ -140,29 +167,31 @@
 
   function renderFeedCard(item, buttonText) {
     return `
-      <section class="app-screen feed-screen" style="--feed-bg:${item.bg};--feed-header:${item.header};--feed-header-text:${item.headerText};--feed-accent:${item.accent}">
+      <section class="app-screen feed-screen" style="--feed-bg:${item.bg};--feed-header:${item.header};--feed-header-text:${item.headerText};--feed-accent:${item.accent};--feed-accent-dark:#1a1a1a">
         <header class="feed-header"><strong>每日胡说</strong><span>${escapeHTML(displayName().slice(0, 1))}</span></header>
-        <article class="news-card">
-          <div class="news-rules"><i></i><i></i></div>
-          <div class="news-body">
+        <div class="feed-container">
+          <article class="news-card">
+            <div class="news-rules"><i></i><i></i></div>
+            <div class="news-body">
             <div class="news-tags"><span>${escapeHTML(item.tags[0])}</span></div>
             <p class="news-source">${escapeHTML(item.source)}</p>
             <i class="headline-rule"></i>
-            <h2>${item.headline.map(escapeHTML).join("<br>")}</h2>
+            <h2>${item.headline.map((line) => `<span>${escapeHTML(line)}</span>`).join("")}</h2>
             <figure><img src="${item.cover}" alt="${escapeHTML(item.headline.join("，"))}" /></figure>
-            <div class="statements-label"><span>STATEMENTS</span><i></i></div>
-            <div class="statements-card">
+            <div class="statements-section">
+              <div class="statements-label"><span>STATEMENTS</span><i></i></div>
               ${item.reactions.map((reaction, index) => `
                 ${index ? '<i class="statement-separator"></i>' : ''}
-                <div class="statement" style="--statement-color:${reaction.color}">
-                  <strong style="color:${reaction.color}">${escapeHTML(reaction.name)}</strong><p>${escapeHTML(reaction.en)}</p><small>${escapeHTML(reaction.zh)}</small>
+                <div class="statement" style="--statement-color:${index === 0 ? reaction.color : '#1a1a1a'}">
+                  <strong style="color:${index === 0 ? reaction.color : '#1a1a1a'}">${escapeHTML(reaction.name)}</strong><p>"${escapeHTML(reaction.en)}"</p><small>${escapeHTML(reaction.zh)}</small>
                 </div>`).join("")}
+              <div class="news-meta"><span>2.3k人围观</span><i></i><span>128条评论</span></div>
             </div>
-            <div class="news-meta"><span>2.3k 人围观</span><i></i><span>128 条评论</span></div>
             <button class="join-button" type="button" data-feed-next>${buttonText}</button>
             <p class="swipe-hint">⌃&nbsp; 上划看下一条</p>
-          </div>
-        </article>
+            </div>
+          </article>
+        </div>
       </section>`;
   }
 
@@ -314,6 +343,15 @@
     const index = flow.indexOf(state.screenId) + 1;
     document.body.dataset.chapter = screen.group;
     screenRoot.innerHTML = renderScreen();
+    phoneExhibit.querySelector(".feed-dots")?.remove();
+    if (state.screenId === "feed") {
+      const dots = document.createElement("div");
+      dots.className = "feed-dots";
+      dots.setAttribute("aria-hidden", "true");
+      dots.innerHTML = `<i class="active"></i>${Array.from({ length: 14 }, () => "<i></i>").join("")}`;
+      phoneExhibit.appendChild(dots);
+    }
+    fitFeedHeadline();
     stageControls.textContent = `PAGE ${String(index).padStart(2, "0")} / ${flow.length} · ${screen.title}`;
     pageLabel.textContent = screen.title;
     navContent.querySelectorAll("[data-go]").forEach((button) => {
@@ -380,6 +418,8 @@
   });
 
   renderNav();
+  fitPhone();
+  window.addEventListener("resize", fitPhone);
   const initial = window.location.hash.match(/^#screen=([a-z0-9-]+)$/)?.[1];
   go(screenMap.has(initial) ? initial : "splash", { replace: true });
 })();
