@@ -15,6 +15,35 @@
   const phoneShell = document.querySelector(".phone-shell");
   const screenMap = new Map(data.screens.map((screen) => [screen.id, screen]));
   const flow = data.screens.map((screen) => screen.id);
+  const portfolioNav = [
+    {
+      index: "01",
+      title: "个性化 Onboarding",
+      items: [{ id: "splash", title: "个性化身份", range: "01–02" }]
+    },
+    {
+      index: "02",
+      title: "内容 Feed 流",
+      items: [{ id: "feed", title: "话题发现", range: "03" }]
+    },
+    {
+      index: "03",
+      title: "AI 群聊口语",
+      items: [
+        { id: "chat-context", title: "剧情化入场", range: "04–05" },
+        { id: "speak-1", title: "多轮自由表达", range: "06–11" }
+      ]
+    },
+    {
+      index: "04",
+      title: "学习反馈闭环",
+      items: [
+        { id: "settlement", title: "对话结算", range: "12" },
+        { id: "expression-1", title: "表达提升", range: "13–15" },
+        { id: "expression-book", title: "表达本", range: "16" }
+      ]
+    }
+  ];
   let micTimer = null;
   let chatTimer = null;
   let typingTimer = null;
@@ -103,15 +132,21 @@
     menuButton.setAttribute("aria-expanded", String(open));
   }
 
+  function navIdForScreen(screenId) {
+    if (screenId === "onboarding") return "splash";
+    if (screenId === "chat-opening") return "chat-context";
+    if (/^(speak|reply)-[1-3]$/.test(screenId)) return "speak-1";
+    if (/^expression-[1-3]$/.test(screenId)) return "expression-1";
+    return screenId;
+  }
+
   function renderNav() {
-    navContent.innerHTML = data.groups.map((group) => {
-      const screens = data.screens.filter((screen) => screen.group === group.id);
+    navContent.innerHTML = portfolioNav.map((group) => {
       return `
         <section class="sidebar-group">
           <h2><span>${escapeHTML(group.index)} /</span>${escapeHTML(group.title)}</h2>
-          ${screens.map((screen) => {
-            const page = flow.indexOf(screen.id) + 1;
-            return `<button type="button" class="sidebar-nav-item" data-go="${screen.id}"><span>${escapeHTML(screen.title)}</span><span>${String(page).padStart(2, "0")}</span></button>`;
+          ${group.items.map((item) => {
+            return `<button type="button" class="sidebar-nav-item" data-go="${item.id}"><span>${escapeHTML(item.title)}</span><span>${escapeHTML(item.range)}</span></button>`;
           }).join("")}
         </section>`;
     }).join("");
@@ -537,7 +572,7 @@
     stageControls.textContent = `PAGE ${String(pageIndex).padStart(2, "0")} / ${flow.length} · ${screen.title}`;
     pageLabel.textContent = screen.title;
     navContent.querySelectorAll("[data-go]").forEach((button) => {
-      button.classList.toggle("active", button.dataset.go === id);
+      button.classList.toggle("active", button.dataset.go === navIdForScreen(id));
     });
   }
 
@@ -611,7 +646,7 @@
     stageControls.textContent = `PAGE ${String(index).padStart(2, "0")} / ${flow.length} · ${screen.title}`;
     pageLabel.textContent = screen.title;
     navContent.querySelectorAll("[data-go]").forEach((button) => {
-      button.classList.toggle("active", button.dataset.go === state.screenId);
+      button.classList.toggle("active", button.dataset.go === navIdForScreen(state.screenId));
     });
     const history = screenRoot.querySelector(".chat-history");
     if (history) history.scrollTop = history.scrollHeight;
