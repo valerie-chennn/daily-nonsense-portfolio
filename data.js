@@ -31,19 +31,19 @@
 
     feed: [
       {
-        id: "room-005",
-        source: "中土娱乐快报",
-        headline: ["“中土好声音”决赛", "甘道夫转椅直接飞出舞台"],
-        difficulty: "B1",
-        tags: ["指环王", "综艺"],
-        cover: "assets/covers/room-005.webp",
-        bg: "#ECFDF5",
-        header: "#D1FAE5",
-        headerText: "#064E3B",
-        accent: "#047857",
+        id: "room-001",
+        source: "东海商报",
+        headline: ["白龙马挂闲鱼标价两万", "卖家疑为队友"],
+        difficulty: "A2",
+        tags: ["西游记", "职场"],
+        cover: "assets/covers/room-001.webp",
+        bg: "#F7F2EC",
+        header: "#F0EBE4",
+        headerText: "#3A2E22",
+        accent: "#C41E1E",
         reactions: [
-          { name: "甘道夫", color: "#7C5CBF", en: "Magical interference. Not operator error.", zh: "转椅可以解释，是魔法干扰。" },
-          { name: "咕噜", color: "#1A8A6E", en: "It's ours, precious. Trophy is OURS.", zh: "冠军是我们的！裁判不公平！" }
+          { name: "八戒", color: "#C84B31", en: "Eats loads, does nothing. Selling tracks.", zh: "这马吃多干少，不卖留着干啥。" },
+          { name: "白龙马", color: "#1A8A6E", en: "I carried bags the whole trip. Where were you?", zh: "谁不干活？我驮行李时你在哪。" }
         ]
       },
       {
@@ -63,19 +63,19 @@
         ]
       },
       {
-        id: "room-001",
-        source: "东海商报",
-        headline: ["白龙马挂闲鱼标价两万", "卖家疑为队友"],
-        difficulty: "A2",
-        tags: ["西游记", "职场"],
-        cover: "assets/covers/room-001.webp",
-        bg: "#F7F2EC",
-        header: "#F0EBE4",
-        headerText: "#3A2E22",
-        accent: "#C41E1E",
+        id: "room-005",
+        source: "中土娱乐快报",
+        headline: ["“中土好声音”决赛", "甘道夫转椅直接飞出舞台"],
+        difficulty: "B1",
+        tags: ["指环王", "综艺"],
+        cover: "assets/covers/room-005.webp",
+        bg: "#ECFDF5",
+        header: "#D1FAE5",
+        headerText: "#064E3B",
+        accent: "#047857",
         reactions: [
-          { name: "八戒", color: "#C84B31", en: "Eats loads, does nothing. Selling tracks.", zh: "这马吃多干少，不卖留着干啥。" },
-          { name: "白龙马", color: "#1A8A6E", en: "I carried bags the whole trip. Where were you?", zh: "谁不干活？我驮行李时你在哪。" }
+          { name: "甘道夫", color: "#7C5CBF", en: "Magical interference. Not operator error.", zh: "转椅可以解释，是魔法干扰。" },
+          { name: "咕噜", color: "#1A8A6E", en: "It's ours, precious. Trophy is OURS.", zh: "冠军是我们的！裁判不公平！" }
         ]
       }
     ],

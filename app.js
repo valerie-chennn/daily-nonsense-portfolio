@@ -16,6 +16,9 @@
   const screenMap = new Map(data.screens.map((screen) => [screen.id, screen]));
   const flow = data.screens.map((screen) => screen.id);
   let micTimer = null;
+  let feedAnimating = false;
+  let feedStartY = 0;
+  let feedDragY = 0;
 
   const ADJ = [
     "Sleepy", "Curious", "Clueless", "Brave", "Lazy", "Dramatic",
@@ -125,16 +128,16 @@
   }
 
   function fitFeedHeadline() {
-    const headline = screenRoot.querySelector(".news-body h2");
-    if (!headline) return;
-    const lines = headline.querySelectorAll("span");
-    if (!lines.length) return;
-    lines.forEach((line) => { line.style.fontSize = "32px"; });
-    const longest = Math.max(...Array.from(lines, (line) => line.scrollWidth));
-    const fontSize = longest > headline.offsetWidth
-      ? Math.max(16, Math.floor(32 * (headline.offsetWidth / longest)))
-      : 32;
-    lines.forEach((line) => { line.style.fontSize = `${fontSize}px`; });
+    screenRoot.querySelectorAll(".news-body h2").forEach((headline) => {
+      const lines = headline.querySelectorAll("span");
+      if (!lines.length) return;
+      lines.forEach((line) => { line.style.fontSize = "32px"; });
+      const longest = Math.max(...Array.from(lines, (line) => line.scrollWidth));
+      const fontSize = longest > headline.offsetWidth
+        ? Math.max(16, Math.floor(32 * (headline.offsetWidth / longest)))
+        : 32;
+      lines.forEach((line) => { line.style.fontSize = `${fontSize}px`; });
+    });
   }
 
   function renderSplash() {
@@ -165,12 +168,9 @@
       </section>`;
   }
 
-  function renderFeedCard(item, buttonText) {
+  function renderFeedStory(item) {
     return `
-      <section class="app-screen feed-screen" style="--feed-bg:${item.bg};--feed-header:${item.header};--feed-header-text:${item.headerText};--feed-accent:${item.accent};--feed-accent-dark:#1a1a1a">
-        <header class="feed-header"><strong>每日胡说</strong><span>${escapeHTML(displayName().slice(0, 1))}</span></header>
-        <div class="feed-container">
-          <article class="news-card">
+          <article class="news-card feed-card" style="--feed-bg:${item.bg};--feed-accent:${item.accent};--feed-accent-dark:#1a1a1a;background:${item.bg}" data-feed-card="${escapeHTML(item.id)}">
             <div class="news-rules"><i></i><i></i></div>
             <div class="news-body">
             <div class="news-tags"><span>${escapeHTML(item.tags[0])}</span></div>
@@ -187,12 +187,95 @@
                 </div>`).join("")}
               <div class="news-meta"><span>2.3k人围观</span><i></i><span>128条评论</span></div>
             </div>
-            <button class="join-button" type="button" data-feed-next>${buttonText}</button>
+            <button class="join-button" type="button" data-feed-next>Join Chat</button>
             <p class="swipe-hint">⌃&nbsp; 上划看下一条</p>
             </div>
-          </article>
+          </article>`;
+  }
+
+  function renderFeed() {
+    const current = data.feed[state.feedIndex] || data.feed[0];
+    return `
+      <section class="app-screen feed-screen" style="--feed-bg:${current.bg};--feed-header:${current.header};--feed-header-text:${current.headerText};--feed-accent:${current.accent};--feed-accent-dark:#1a1a1a">
+        <header class="feed-header"><strong>每日胡说</strong><span>${escapeHTML(displayName().slice(0, 1))}</span></header>
+        <div class="feed-container" data-feed-container tabindex="0" aria-label="新闻 Feed，可上下滑动切换话题">
+          <div class="feed-track">${data.feed.map(renderFeedStory).join("")}</div>
         </div>
       </section>`;
+  }
+
+  function syncFeedPosition({ animate = true, offset = 0 } = {}) {
+    const container = screenRoot.querySelector("[data-feed-container]");
+    const track = container?.querySelector(".feed-track");
+    if (!container || !track) return;
+    const cardHeight = container.clientHeight;
+    track.querySelectorAll(".feed-card").forEach((card) => { card.style.height = `${cardHeight}px`; });
+    track.style.transition = animate ? "transform .3s cubic-bezier(.25,.46,.45,.94)" : "none";
+    track.style.transform = `translateY(${-state.feedIndex * cardHeight + offset}px)`;
+    phoneExhibit.querySelectorAll(".feed-dots i").forEach((dot, index) => dot.classList.toggle("active", index === state.feedIndex));
+    const current = data.feed[state.feedIndex];
+    const feedScreen = screenRoot.querySelector(".feed-screen");
+    if (feedScreen && current) {
+      feedScreen.style.setProperty("--feed-bg", current.bg);
+      feedScreen.style.setProperty("--feed-header", current.header);
+      feedScreen.style.setProperty("--feed-header-text", current.headerText);
+      feedScreen.style.setProperty("--feed-accent", current.accent);
+    }
+  }
+
+  function stepFeed(direction) {
+    if (feedAnimating) return;
+    const nextIndex = Math.max(0, Math.min(data.feed.length - 1, state.feedIndex + direction));
+    if (nextIndex === state.feedIndex) {
+      syncFeedPosition({ animate: true });
+      return;
+    }
+    feedAnimating = true;
+    state.feedIndex = nextIndex;
+    syncFeedPosition({ animate: true });
+    window.setTimeout(() => { feedAnimating = false; }, 320);
+  }
+
+  function bindFeedInteractions() {
+    const container = screenRoot.querySelector("[data-feed-container]");
+    if (!container) return;
+    let dragging = false;
+
+    container.addEventListener("pointerdown", (event) => {
+      if (feedAnimating || event.target.closest("button")) return;
+      dragging = true;
+      feedStartY = event.clientY;
+      feedDragY = 0;
+      container.setPointerCapture?.(event.pointerId);
+      container.classList.add("dragging");
+    });
+    container.addEventListener("pointermove", (event) => {
+      if (!dragging) return;
+      feedDragY = event.clientY - feedStartY;
+      syncFeedPosition({ animate: false, offset: feedDragY });
+    });
+    const endDrag = () => {
+      if (!dragging) return;
+      dragging = false;
+      container.classList.remove("dragging");
+      const threshold = container.clientHeight * .15;
+      if (feedDragY < -threshold) stepFeed(1);
+      else if (feedDragY > threshold) stepFeed(-1);
+      else syncFeedPosition({ animate: true });
+      feedDragY = 0;
+    };
+    container.addEventListener("pointerup", endDrag);
+    container.addEventListener("pointercancel", endDrag);
+    container.addEventListener("wheel", (event) => {
+      event.preventDefault();
+      if (Math.abs(event.deltaY) < 30) return;
+      stepFeed(event.deltaY > 0 ? 1 : -1);
+    }, { passive: false });
+    container.addEventListener("keydown", (event) => {
+      if (!["ArrowUp", "ArrowDown", "PageUp", "PageDown"].includes(event.key)) return;
+      event.preventDefault();
+      stepFeed(event.key === "ArrowDown" || event.key === "PageDown" ? 1 : -1);
+    });
   }
 
   function chatHeader() {
@@ -320,7 +403,7 @@
     switch (state.screenId) {
       case "splash": return renderSplash();
       case "onboarding": return renderOnboarding();
-      case "feed": return renderFeedCard(data.feed.find((item) => item.id === "room-001"), "Join Chat");
+      case "feed": return renderFeed();
       case "chat-context": return renderChatContext();
       case "chat-opening": return renderOpening();
       case "speak-1": return renderSpeak(0);
@@ -348,10 +431,16 @@
       const dots = document.createElement("div");
       dots.className = "feed-dots";
       dots.setAttribute("aria-hidden", "true");
-      dots.innerHTML = `<i class="active"></i>${Array.from({ length: 14 }, () => "<i></i>").join("")}`;
+      dots.innerHTML = data.feed.map((_, index) => `<i class="${index === state.feedIndex ? "active" : ""}"></i>`).join("");
       phoneExhibit.appendChild(dots);
     }
     fitFeedHeadline();
+    if (state.screenId === "feed") {
+      window.requestAnimationFrame(() => {
+        syncFeedPosition({ animate: false });
+        bindFeedInteractions();
+      });
+    }
     stageControls.textContent = `PAGE ${String(index).padStart(2, "0")} / ${flow.length} · ${screen.title}`;
     pageLabel.textContent = screen.title;
     navContent.querySelectorAll("[data-go]").forEach((button) => {
