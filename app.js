@@ -124,15 +124,10 @@
   }
 
   function fitPhone() {
-    const widthScale = (productStage.clientWidth - 24) / 393;
-    const compactLayout = window.innerWidth <= 820;
-    const scale = compactLayout
-      ? Math.min(1, widthScale)
-      : Math.min(1.45, widthScale);
-    phoneExhibit.style.width = `${393 * scale}px`;
-    phoneExhibit.style.height = `${852 * scale}px`;
-    phoneShell.style.transform = `scale(${scale})`;
-    productStage.classList.toggle("stage-needs-scroll", (852 * scale) + 52 > productStage.clientHeight);
+    phoneExhibit.style.removeProperty("width");
+    phoneExhibit.style.removeProperty("height");
+    phoneShell.style.removeProperty("transform");
+    productStage.classList.remove("stage-needs-scroll");
   }
 
   function fitFeedHeadline() {
