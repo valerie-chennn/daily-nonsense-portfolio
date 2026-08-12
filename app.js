@@ -18,6 +18,8 @@
   let micTimer = null;
   let chatTimer = null;
   let typingTimer = null;
+  let speechRecognition = null;
+  let capturedSpeech = "";
   let feedAnimating = false;
   let feedStartY = 0;
   let feedDragY = 0;
@@ -52,8 +54,31 @@
     mic: "idle",
     hintOpen: false,
     chatPhase: "first-typing",
+    userUtterances: [null, null, null],
+    npcReplies: [null, null, null],
+    replyStep: 0,
+    typeMode: false,
+    typeDraft: "",
     expressionIndex: 0
   };
+
+  const simulatedUtterances = [
+    [
+      "Hold on. What happened before you put him up for sale?",
+      "Fourteen years is a long time. Why are you selling him now?",
+      "Wait—did anyone ask the horse what he wants?"
+    ],
+    [
+      "Carrying everyone for fourteen years sounds like real work.",
+      "I understand the food costs, but his work still matters.",
+      "He sounds like a teammate, not something you can sell."
+    ],
+    [
+      "Take down the listing and settle this fairly.",
+      "Do not sell him. Pay him for the work instead.",
+      "Let him choose what happens next."
+    ]
+  ];
 
   function displayName() {
     return state.name || state.namePlaceholder;
@@ -104,6 +129,17 @@
     state.mic = "idle";
     if (id === "chat-context") state.chatPhase = "first-typing";
     if (id === "chat-opening") state.chatPhase = "second-typing";
+    if (id.startsWith("reply-")) {
+      state.replyStep = 0;
+      const turnIndex = Number(id.slice(-1)) - 1;
+      if (!state.userUtterances[turnIndex]) {
+        state.userUtterances[turnIndex] = randomItem(simulatedUtterances[turnIndex]);
+      }
+    }
+    if (id.startsWith("speak-")) {
+      state.typeMode = false;
+      state.typeDraft = "";
+    }
     state.screenId = id;
     setHash(id, options.replace);
     render();
@@ -309,20 +345,27 @@
     return `<span class="tts-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></span>`;
   }
 
+  function speakerColor(message) {
+    if (message.speaker === "八戒") return "#1A6A8A";
+    if (message.speaker === "白龙马") return "#A05020";
+    return message.color;
+  }
+
   function messageHTML(message, kind, delay = 0, variant = "complete") {
     if (kind === "user") {
-      return `<div class="user-row animate-in" style="--delay:${delay}ms"><div><strong>${escapeHTML(displayName())}</strong><p>${escapeHTML(message)}</p></div></div>`;
+      return `<div class="user-row animate-in" style="--delay:${delay}ms"><div><strong>你</strong><p>${escapeHTML(message)}</p></div></div>`;
     }
     const typing = variant === "typing";
-    return `<div class="npc-row ${typing ? "npc-row-typing" : "animate-in"}" style="--delay:${delay}ms"><span style="background:${message.color}">${escapeHTML(message.avatar)}</span><div><strong style="color:${message.color}">${escapeHTML(message.speaker)}</strong><article class="${typing ? "npc-bubble-typing" : ""}"><p>${typing ? typingText(message.en) : mentionText(message.en)}</p><small>${mentionText(message.zh)}</small>${typing ? "" : speakerIcon()}</article></div></div>`;
+    const color = speakerColor(message);
+    return `<div class="npc-row ${typing ? "npc-row-typing" : "animate-in"}" style="--delay:${delay}ms"><span style="background:${color}">${escapeHTML(message.avatar)}</span><div><strong style="color:${color}">${escapeHTML(message.speaker)}</strong><article class="${typing ? "npc-bubble-typing" : ""}"><p>${typing ? typingText(message.en) : mentionText(message.en)}</p><small>${mentionText(message.zh)}</small>${typing ? "" : speakerIcon()}</article></div></div>`;
   }
 
   function visibleMessages(untilTurn, includeReplies) {
     const list = [...data.opening.map((message) => ({ kind: "npc", value: message }))];
     for (let index = 0; index < untilTurn; index += 1) {
-      list.push({ kind: "user", value: data.turns[index].user });
+      if (state.userUtterances[index]) list.push({ kind: "user", value: state.userUtterances[index] });
       if (index < untilTurn - 1 || includeReplies) {
-        data.turns[index].replies.forEach((message) => list.push({ kind: "npc", value: message }));
+        (state.npcReplies[index] || data.turns[index].replies).forEach((message) => list.push({ kind: "npc", value: message }));
       }
     }
     return list;
@@ -350,28 +393,35 @@
 
   function renderSpeak(turnIndex) {
     const turn = data.turns[turnIndex];
-    const history = turnIndex === 0 ? data.opening.map((value) => ({ kind: "npc", value })) : visibleMessages(turnIndex, true).slice(-3);
-    const micLabel = state.mic === "recording" ? "录音中… 0:03" : state.mic === "transcribing" ? "识别中…" : "开始说话";
+    const history = visibleMessages(turnIndex, true);
+    const micLabel = state.mic === "recording" ? "录音中…" : state.mic === "transcribing" ? "识别中…" : "按住说话";
     return `
       <section class="app-screen chat-screen speak-screen">${chatHeader()}
         <main class="chat-history compact">${contextBlock()}${renderMessages(history)}</main>
         <div class="drag-handle"><i></i></div>
         <section class="speak-panel">
           ${state.hintOpen ? `<div class="cue-card"><div class="cue-strategy"><span>${escapeHTML(turn.hintLabel || "参考说法")}</span><i>·</i><strong>${escapeHTML(turn.cue)}</strong></div><p>${escapeHTML(turn.example)}</p>${turn.exampleZh ? `<small>${escapeHTML(turn.exampleZh)}</small>` : ""}</div>` : ""}
-          <div class="mic-wrap ${state.mic === "recording" ? "recording" : ""}"><i></i><i></i><button type="button" data-mic aria-label="${micLabel}">${state.mic === "transcribing" ? '<span class="spinner"></span>' : micIcon()}</button></div>
-          ${state.mic === "idle" ? "" : `<strong class="mic-label">${micLabel}</strong>`}
-          <div class="speak-tools"><button type="button" aria-label="切换到打字模式"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M8 16h8"></path></svg></button><button type="button" class="${state.hintOpen ? "active" : ""}" data-toggle-hint>💡 提示</button></div>
+          ${state.typeMode ? `
+            <div class="type-input-row"><button type="button" data-type-mode aria-label="切换到语音">${micIcon()}</button><textarea data-type-draft rows="1" placeholder="用英语回复…">${escapeHTML(state.typeDraft)}</textarea><button type="button" class="type-send" data-type-send aria-label="发送">➤</button></div>
+          ` : `
+            <div class="mic-wrap ${state.mic === "recording" ? "recording" : ""}"><i></i><i></i><button type="button" data-mic aria-label="${micLabel}">${state.mic === "transcribing" ? '<span class="spinner"></span>' : micIcon()}</button></div>
+            <strong class="mic-label">${micLabel}</strong>
+          `}
+          <div class="speak-tools"><button type="button" data-type-mode aria-label="切换输入方式"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M8 16h8"></path></svg></button><button type="button" class="${state.hintOpen ? "active" : ""}" data-toggle-hint>💡 提示</button></div>
         </section>
       </section>`;
   }
 
   function renderReply(turnIndex) {
-    const messages = [
-      { kind: "user", value: data.turns[turnIndex].user },
-      ...data.turns[turnIndex].replies.map((value) => ({ kind: "npc", value }))
-    ];
-    const button = turnIndex === 2 ? "查看结算" : "继续聊";
-    return `<section class="app-screen chat-screen">${chatHeader()}<main class="chat-history reply-history"><div class="turn-marker">第 ${turnIndex + 1} 轮 · 你的表达推动了讨论</div>${renderMessages(messages, 3)}</main><div class="chat-bottom"><button class="warm-button" type="button" data-next>${button}</button></div></section>`;
+    const replies = state.npcReplies[turnIndex] || data.turns[turnIndex].replies;
+    const messages = visibleMessages(turnIndex, true);
+    messages.push({ kind: "user", value: state.userUtterances[turnIndex] });
+    for (let index = 0; index < Math.min(state.replyStep, replies.length); index += 1) {
+      messages.push({ kind: "npc", value: replies[index] });
+    }
+    const pending = state.replyStep < replies.length ? replies[state.replyStep] : null;
+    const button = turnIndex === 2 ? "查看结算" : "点击继续";
+    return `<section class="app-screen chat-screen">${chatHeader()}<main class="chat-history reply-history">${contextBlock()}${renderMessages(messages)}${pending ? messageHTML(pending, "npc", 0, "typing") : ""}</main>${pending ? `<div class="chat-status"><p><strong style="color:${speakerColor(pending)}">${escapeHTML(pending.speaker)}</strong> 正在说话…</p></div>` : `<div class="chat-bottom"><button class="warm-button" type="button" data-reply-continue>${button}</button></div>`}</section>`;
   }
 
   function renderSettlement() {
@@ -473,6 +523,11 @@
     if (history) history.scrollTop = history.scrollHeight;
     if (state.screenId === "chat-context" && state.chatPhase === "first-typing") startNpcTyping("first-ready");
     if (state.screenId === "chat-opening" && state.chatPhase === "second-typing") startNpcTyping("second-ready");
+    if (state.screenId.startsWith("reply-")) {
+      const turnIndex = Number(state.screenId.slice(-1)) - 1;
+      const replies = state.npcReplies[turnIndex] || data.turns[turnIndex].replies;
+      if (state.replyStep < replies.length) startReplyTyping(turnIndex);
+    }
   }
 
   function startNpcTyping(donePhase) {
@@ -503,15 +558,88 @@
     render();
   }
 
+  function conversationalReplies(turnIndex, utterance) {
+    const lower = utterance.toLowerCase();
+    if (turnIndex === 0 && /sing|la[- ]?ba|song/.test(lower)) {
+      return [
+        { speaker: "八戒", color: "#1A6A8A", avatar: "八", en: "What? Are you singing? Wake up—look at this sale.", zh: "啥？你在唱歌吗？醒醒，看看这笔买卖。" },
+        { speaker: "白龙马", color: "#A05020", avatar: "白", en: "He's confused. You decide: is 20k fair for fourteen years of work?", zh: "他听糊涂了。你来说：十四年的辛苦，卖两万公平吗？" }
+      ];
+    }
+    if (turnIndex === 0 && /fair|fourteen|14|work|horse/.test(lower)) {
+      return [
+        { speaker: "八戒", color: "#1A6A8A", avatar: "八", en: "He eats a lot, and the journey is over. What else should I do?", zh: "他吃得多，取经也结束了。不卖还能怎么办？" },
+        { speaker: "白龙马", color: "#A05020", avatar: "白", en: "Exactly. Fourteen years of work should count for something.", zh: "正是。十四年的付出，总该算点什么。" }
+      ];
+    }
+    return data.turns[turnIndex].replies;
+  }
+
   function handleMic() {
-    if (state.mic !== "idle") return;
-    state.mic = "recording";
+    if (state.mic === "transcribing") return;
+    if (state.mic === "idle") {
+      state.mic = "recording";
+      capturedSpeech = "";
+      const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (Recognition) {
+        speechRecognition = new Recognition();
+        speechRecognition.lang = "en-US";
+        speechRecognition.interimResults = false;
+        speechRecognition.maxAlternatives = 1;
+        speechRecognition.onresult = (event) => {
+          capturedSpeech = event.results?.[0]?.[0]?.transcript || "";
+        };
+        speechRecognition.onerror = () => {};
+        try { speechRecognition.start(); } catch (_) {}
+      }
+      return render();
+    }
+    if (speechRecognition) {
+      try { speechRecognition.stop(); } catch (_) {}
+      speechRecognition = null;
+    }
+    state.mic = "transcribing";
     render();
+    const turnIndex = Number(state.screenId.slice(-1)) - 1;
     micTimer = window.setTimeout(() => {
-      state.mic = "transcribing";
-      render();
-      micTimer = window.setTimeout(next, 850);
-    }, 1100);
+      submitUserTurn(turnIndex, capturedSpeech || randomItem(simulatedUtterances[turnIndex]));
+    }, 650);
+  }
+
+  function submitUserTurn(turnIndex, text) {
+    const utterance = String(text || "").trim();
+    if (!utterance || turnIndex < 0 || turnIndex > 2) return;
+    state.userUtterances[turnIndex] = utterance;
+    state.npcReplies[turnIndex] = conversationalReplies(turnIndex, utterance);
+    state.mic = "idle";
+    state.hintOpen = false;
+    go(`reply-${turnIndex + 1}`);
+  }
+
+  function startReplyTyping(turnIndex) {
+    const chars = Array.from(screenRoot.querySelectorAll(".npc-row-typing .typing-char"));
+    if (!chars.length) return;
+    let cursor = 0;
+    typingTimer = window.setInterval(() => {
+      if (!chars[cursor]) {
+        window.clearInterval(typingTimer);
+        typingTimer = null;
+        chatTimer = window.setTimeout(() => {
+          state.replyStep += 1;
+          render();
+        }, 360);
+        return;
+      }
+      chars[cursor].classList.add("lit");
+      cursor += 1;
+    }, 34);
+  }
+
+  function continueAfterReplies() {
+    const turnIndex = Number(state.screenId.slice(-1)) - 1;
+    if (turnIndex === 0) return go("speak-2");
+    if (turnIndex === 1) return go("speak-3");
+    return go("settlement");
   }
 
   document.addEventListener("click", (event) => {
@@ -522,6 +650,15 @@
     if (target.matches("[data-next]")) return next();
     if (target.matches("[data-feed-next]")) return go("chat-context");
     if (target.matches("[data-mic]")) return handleMic();
+    if (target.matches("[data-type-mode]")) {
+      state.typeMode = !state.typeMode;
+      return render();
+    }
+    if (target.matches("[data-type-send]")) {
+      const turnIndex = Number(state.screenId.slice(-1)) - 1;
+      return submitUserTurn(turnIndex, screenRoot.querySelector("[data-type-draft]")?.value);
+    }
+    if (target.matches("[data-reply-continue]")) return continueAfterReplies();
     if (target.matches("[data-toggle-hint]")) {
       state.hintOpen = !state.hintOpen;
       return render();
@@ -546,8 +683,21 @@
       state.name = "";
       state.namePlaceholder = generateName();
       state.hintOpen = false;
+      state.userUtterances = [null, null, null];
+      state.npcReplies = [null, null, null];
       return go("splash");
     }
+  });
+
+  document.addEventListener("input", (event) => {
+    if (event.target.matches("[data-type-draft]")) state.typeDraft = event.target.value;
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (!event.target.matches("[data-type-draft]") || event.key !== "Enter" || event.shiftKey) return;
+    event.preventDefault();
+    const turnIndex = Number(state.screenId.slice(-1)) - 1;
+    submitUserTurn(turnIndex, event.target.value);
   });
 
   menuButton.addEventListener("click", () => setSidebar(!sidebar.classList.contains("open")));
