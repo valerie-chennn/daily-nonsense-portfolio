@@ -144,6 +144,7 @@ button { cursor: pointer; }
 .news-meta { display: flex; align-items: center; gap: 8px; margin-top: clamp(10px,1.6vh,16px); color: #999; font-size: clamp(11px,1.4vh,13px); }
 .news-meta i { width: 3px; height: 3px; border-radius: 50%; background: #ccc; }
 .join-button { margin-top: auto; padding: clamp(12px,1.8vh,18px) 0; border-radius: 14px; background: var(--feed-accent-dark); color: white; font-size: clamp(15px,2vh,18px); font-weight: 700; letter-spacing: 1px; }
+.join-button:disabled { background: #d8d4cd; color: #999690; cursor: default; }
 .swipe-hint { display: flex; align-items: center; justify-content: center; gap: 4px; margin: clamp(6px,1vh,12px) 0 0; color: #bbb; font-size: clamp(10px,1.3vh,12px); text-align: center; }
 .feed-dots { position: absolute; z-index: 10; top: 50%; right: -15px; display: flex; flex-direction: column; gap: 6px; transform: translateY(-50%); pointer-events: none; }
 .feed-dots i { width: 5px; height: 5px; border-radius: 3px; background: rgba(0,0,0,.15); }

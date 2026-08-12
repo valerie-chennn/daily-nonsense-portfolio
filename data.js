@@ -41,25 +41,47 @@
         header: "#F0EBE4",
         headerText: "#3A2E22",
         accent: "#C41E1E",
+        views: "2.3k",
+        comments: 128,
         reactions: [
           { name: "八戒", color: "#C84B31", en: "Eats loads, does nothing. Selling tracks.", zh: "这马吃多干少，不卖留着干啥。" },
           { name: "白龙马", color: "#1A8A6E", en: "I carried bags the whole trip. Where were you?", zh: "谁不干活？我驮行李时你在哪。" }
         ]
       },
       {
-        id: "room-004",
-        source: "魔法日报",
-        headline: ["AI 一秒分完院", "分院帽失业"],
+        id: "room-002",
+        source: "复联内部周报",
+        headline: ["灭霸入职首日提交裁员方案", "饼状图获 CEO 好评"],
         difficulty: "B1",
-        tags: ["哈利波特", "AI"],
-        cover: "assets/covers/room-004.webp",
-        bg: "#FFF7ED",
-        header: "#FEF3C7",
-        headerText: "#78350F",
-        accent: "#92400E",
+        tags: ["漫威", "职场"],
+        cover: "assets/covers/room-002.webp",
+        bg: "#FFF1F2",
+        header: "#FFE4E6",
+        headerText: "#4C0519",
+        accent: "#BE123C",
+        views: "4.1k",
+        comments: 267,
         reactions: [
-          { name: "赫敏", color: "#7C5CBF", en: "97% accuracy confirmed. Still shouldn't use it.", zh: "准确率 97% 是真的，但不代表该用。" },
-          { name: "马尔福", color: "#1A8A6E", en: "Hufflepuff?! The system is broken.", zh: "分我进赫奇帕奇？系统有 bug。" }
+          { name: "钢铁侠", color: "#BE123C", en: "Math checks out. Does NOT mean I endorse it.", zh: "数学上成立，但我不支持这么做。" },
+          { name: "甄嬛", color: "#881337", en: "Lovely chart. The half being cut? Not my people.", zh: "图表精致，本宫欣赏，但不裁本宫。" }
+        ]
+      },
+      {
+        id: "room-003",
+        source: "中土娱乐周刊",
+        headline: ["年会舞台被不明力量冻住", "诸葛亮当场无语"],
+        difficulty: "A2",
+        tags: ["迪士尼", "三国"],
+        cover: "assets/covers/room-003.webp",
+        bg: "#F5F3FF",
+        header: "#EDE9FE",
+        headerText: "#3B0764",
+        accent: "#6D28D9",
+        views: "1.8k",
+        comments: 95,
+        reactions: [
+          { name: "诸葛亮", color: "#6D28D9", en: "Stars clear. Universe overruled the plan.", zh: "昨夜星象无异兆，此冻乃天意也。" },
+          { name: "Elsa", color: "#3B0764", en: "Ice backdrop beats the original PPT, honestly.", zh: "冰雕背景比原来 PPT 好看多了。" }
         ]
       },
       {
@@ -73,9 +95,29 @@
         header: "#D1FAE5",
         headerText: "#064E3B",
         accent: "#047857",
+        views: "5.6k",
+        comments: 342,
         reactions: [
-          { name: "甘道夫", color: "#7C5CBF", en: "Magical interference. Not operator error.", zh: "转椅可以解释，是魔法干扰。" },
-          { name: "咕噜", color: "#1A8A6E", en: "It's ours, precious. Trophy is OURS.", zh: "冠军是我们的！裁判不公平！" }
+          { name: "甘道夫", color: "#047857", en: "Magical interference. Not operator error.", zh: "转椅可以解释，是魔法干扰。" },
+          { name: "咕噜", color: "#064E3B", en: "It's ours, precious. Trophy is OURS.", zh: "冠军是我们的！裁判不公平！" }
+        ]
+      },
+      {
+        id: "room-006",
+        source: "后宫人事通报",
+        headline: ["华妃年度考核垫底", "甄嬛建议转岗冷宫"],
+        difficulty: "A2",
+        tags: ["甄嬛传", "职场"],
+        cover: "assets/covers/room-006.webp",
+        bg: "#F7ECF0",
+        header: "#F3E0E8",
+        headerText: "#5F1E3A",
+        accent: "#BE185D",
+        views: "3.8k",
+        comments: 215,
+        reactions: [
+          { name: "华妃", color: "#BE185D", en: "Review ME? I should be reviewing YOU.", zh: "考核？本宫要考核你才对。" },
+          { name: "甄嬛", color: "#5F1E3A", en: "Data doesn't lie. But it can be gentle.", zh: "数据不会说谎，但可以说得委婉。" }
         ]
       }
     ],

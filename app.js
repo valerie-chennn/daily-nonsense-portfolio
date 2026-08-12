@@ -169,6 +169,7 @@
   }
 
   function renderFeedStory(item) {
+    const isPlayable = item.id === "room-001";
     return `
           <article class="news-card feed-card" style="--feed-bg:${item.bg};--feed-accent:${item.accent};--feed-accent-dark:#1a1a1a;background:${item.bg}" data-feed-card="${escapeHTML(item.id)}">
             <div class="news-rules"><i></i><i></i></div>
@@ -185,9 +186,9 @@
                 <div class="statement" style="--statement-color:${index === 0 ? reaction.color : '#1a1a1a'}">
                   <strong style="color:${index === 0 ? reaction.color : '#1a1a1a'}">${escapeHTML(reaction.name)}</strong><p>"${escapeHTML(reaction.en)}"</p><small>${escapeHTML(reaction.zh)}</small>
                 </div>`).join("")}
-              <div class="news-meta"><span>2.3k人围观</span><i></i><span>128条评论</span></div>
+              <div class="news-meta"><span>${escapeHTML(item.views)}人围观</span><i></i><span>${escapeHTML(item.comments)}条评论</span></div>
             </div>
-            <button class="join-button" type="button" data-feed-next>Join Chat</button>
+            <button class="join-button" type="button" ${isPlayable ? "data-feed-next" : "disabled aria-disabled=\"true\""}>Join Chat</button>
             <p class="swipe-hint">⌃&nbsp; 上划看下一条</p>
             </div>
           </article>`;
@@ -225,11 +226,7 @@
 
   function stepFeed(direction) {
     if (feedAnimating) return;
-    const nextIndex = Math.max(0, Math.min(data.feed.length - 1, state.feedIndex + direction));
-    if (nextIndex === state.feedIndex) {
-      syncFeedPosition({ animate: true });
-      return;
-    }
+    const nextIndex = (state.feedIndex + direction + data.feed.length) % data.feed.length;
     feedAnimating = true;
     state.feedIndex = nextIndex;
     syncFeedPosition({ animate: true });
