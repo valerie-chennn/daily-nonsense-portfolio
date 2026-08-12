@@ -125,7 +125,7 @@
     room: {
       groupName: "取经项目推进群（已解散待定）",
       members: "八戒 · 白龙马 · 你",
-      notice: "取经任务结项，各成员请处理个人物品，白龙马问题请联系 HR",
+      notice: "取经任务结项，各成员请处理个人物品，白龙马问题请联系HR",
       role: "Outside Auditor",
       inviter: "八戒 invited you to the group"
     },
@@ -133,24 +133,26 @@
     opening: [
       {
         speaker: "八戒",
-        color: "#C84B31",
+        color: "#1A6A8A",
         avatar: "八",
         en: "@Momo, perfect timing! This horse is on Xianyu for 20k. Help me sell him!",
         zh: "@Momo，你来得正好！这马挂闲鱼两万了。帮我卖掉它！"
       },
       {
         speaker: "白龙马",
-        color: "#1A8A6E",
+        color: "#A05020",
         avatar: "白",
-        en: "SELL me?! I carried bags for fourteen years! @Momo, is that fair to you?",
-        zh: "卖我？！我驮了十四年行李！@Momo，你觉得这公平吗？"
+        en: "SELL me?! I carried bags for fourteen years! @Momo is that fair to you?",
+        zh: "卖我？！我驮了十四年行李！@Momo 你觉得这公平吗？"
       }
     ],
 
     turns: [
       {
-        cue: "八戒要拉你站队，先问清楚发生了什么",
-        example: "Tell me what happened first.",
+        cue: "先接住情绪，再问细节",
+        hintLabel: "确认感受",
+        example: "That's a long time. What happened?",
+        exampleZh: "那是很久了。发生了什么？",
         user: "Wait, sell? I no understand. Horse not good. You tell me first.",
         replies: [
           { speaker: "八戒", color: "#C84B31", avatar: "八", en: "Oh, new guy! Simple: I put the horse on sale. 20k yuan. Good deal, right? He just carries bags.", zh: "哦，新来的！简单：我把马挂闲鱼了，两万块。划算吧？他就驮个行李而已。" },

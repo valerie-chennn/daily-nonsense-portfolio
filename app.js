@@ -276,20 +276,38 @@
   }
 
   function chatHeader() {
-    return `<header class="chat-header"><button type="button" data-back aria-label="返回">‹</button><div><strong>${escapeHTML(data.room.groupName)}</strong><span>${escapeHTML(data.room.members)}</span></div><b>LIVE</b></header>`;
+    return `<header class="chat-header"><button type="button" data-back aria-label="返回"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div><strong>${escapeHTML(data.room.groupName)}</strong><span>${escapeHTML(data.room.members)}</span></div><b>LIVE</b></header>`;
   }
 
   function contextBlock() {
     return `<div class="chat-context"><p>📌 ${escapeHTML(data.room.notice)}</p><p>${escapeHTML(data.room.inviter)}</p><div><i></i><span>You're <strong>${escapeHTML(data.room.role)}</strong></span><i></i></div></div>`;
   }
 
-  function messageHTML(message, kind, delay = 0) {
+  function mentionText(value) {
+    const placeholder = "__PORTFOLIO_MENTION__";
+    const text = String(value || "").replaceAll("@Momo", placeholder);
+    return escapeHTML(text).replaceAll(placeholder, `<span class="mention">@${escapeHTML(displayName())}</span>`);
+  }
+
+  function typingText(value) {
+    const raw = String(value || "");
+    const mention = `@${displayName()}`;
+    const text = raw.replaceAll("@Momo", mention);
+    const splitAt = Math.min(text.length, Math.max(34, Math.round(text.length * .58)));
+    const lit = escapeHTML(text.slice(0, splitAt)).replace(escapeHTML(mention), `<span class="mention">${escapeHTML(mention)}</span>`);
+    return `<span class="typing-lit">${lit}</span>${escapeHTML(text.slice(splitAt))}`;
+  }
+
+  function speakerIcon() {
+    return `<span class="tts-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></span>`;
+  }
+
+  function messageHTML(message, kind, delay = 0, variant = "complete") {
     if (kind === "user") {
       return `<div class="user-row animate-in" style="--delay:${delay}ms"><div><strong>${escapeHTML(displayName())}</strong><p>${escapeHTML(message)}</p></div></div>`;
     }
-    const english = String(message.en || "").replaceAll("@Momo", `@${displayName()}`);
-    const chinese = String(message.zh || "").replaceAll("@Momo", `@${displayName()}`);
-    return `<div class="npc-row animate-in" style="--delay:${delay}ms"><span style="background:${message.color}">${escapeHTML(message.avatar)}</span><div><strong style="color:${message.color}">${escapeHTML(message.speaker)}</strong><article><p>${escapeHTML(english)}</p><small>${escapeHTML(chinese)}</small></article></div></div>`;
+    const typing = variant === "typing";
+    return `<div class="npc-row ${typing ? "npc-row-typing" : "animate-in"}" style="--delay:${delay}ms"><span style="background:${message.color}">${escapeHTML(message.avatar)}</span><div><strong style="color:${message.color}">${escapeHTML(message.speaker)}</strong><article class="${typing ? "npc-bubble-typing" : ""}"><p>${typing ? typingText(message.en) : mentionText(message.en)}</p><small>${mentionText(message.zh)}</small>${typing ? "" : speakerIcon()}</article></div></div>`;
   }
 
   function visibleMessages(untilTurn, includeReplies) {
@@ -311,11 +329,11 @@
   }
 
   function renderChatContext() {
-    return `<section class="app-screen chat-screen">${chatHeader()}<main class="chat-history">${contextBlock()}<div class="system-pill">你已加入群聊</div></main><div class="chat-bottom"><button class="warm-button" type="button" data-next>看看他们在吵什么</button></div></section>`;
+    return `<section class="app-screen chat-screen whole-screen-next" data-next>${chatHeader()}<main class="chat-history">${contextBlock()}${messageHTML(data.opening[0], "npc", 0, "typing")}</main><div class="chat-status"><p><strong style="color:${data.opening[0].color}">${escapeHTML(data.opening[0].speaker)}</strong> 正在说话…</p></div></section>`;
   }
 
   function renderOpening() {
-    return `<section class="app-screen chat-screen">${chatHeader()}<main class="chat-history">${contextBlock()}${renderMessages(data.opening.map((value) => ({ kind: "npc", value })), 2)}</main><div class="chat-bottom"><button class="warm-button" type="button" data-next>轮到你了</button></div></section>`;
+    return `<section class="app-screen chat-screen">${chatHeader()}<main class="chat-history">${contextBlock()}${messageHTML(data.opening[0], "npc")}</main><div class="chat-bottom"><button class="warm-button" type="button" data-next>点击继续</button></div></section>`;
   }
 
   function micIcon() {
@@ -325,16 +343,16 @@
   function renderSpeak(turnIndex) {
     const turn = data.turns[turnIndex];
     const history = turnIndex === 0 ? data.opening.map((value) => ({ kind: "npc", value })) : visibleMessages(turnIndex, true).slice(-3);
-    const micLabel = state.mic === "recording" ? "录音中… 0:03" : state.mic === "transcribing" ? "识别中…" : "按住说话";
+    const micLabel = state.mic === "recording" ? "录音中… 0:03" : state.mic === "transcribing" ? "识别中…" : "开始说话";
     return `
       <section class="app-screen chat-screen speak-screen">${chatHeader()}
         <main class="chat-history compact">${contextBlock()}${renderMessages(history)}</main>
         <div class="drag-handle"><i></i></div>
         <section class="speak-panel">
-          ${state.hintOpen ? `<div class="cue-card"><span>💡 参考说法</span><p>${escapeHTML(turn.example)}</p><small>${escapeHTML(turn.cue)}</small></div>` : ""}
+          ${state.hintOpen ? `<div class="cue-card"><div class="cue-strategy"><span>${escapeHTML(turn.hintLabel || "参考说法")}</span><i>·</i><strong>${escapeHTML(turn.cue)}</strong></div><p>${escapeHTML(turn.example)}</p>${turn.exampleZh ? `<small>${escapeHTML(turn.exampleZh)}</small>` : ""}</div>` : ""}
           <div class="mic-wrap ${state.mic === "recording" ? "recording" : ""}"><i></i><i></i><button type="button" data-mic aria-label="${micLabel}">${state.mic === "transcribing" ? '<span class="spinner"></span>' : micIcon()}</button></div>
-          <strong class="mic-label">${micLabel}</strong>
-          <div class="speak-tools"><button type="button">⌨ 文字输入</button><button type="button" class="${state.hintOpen ? "active" : ""}" data-toggle-hint>💡 ${state.hintOpen ? "提示已展开" : "提示"}</button></div>
+          ${state.mic === "idle" ? "" : `<strong class="mic-label">${micLabel}</strong>`}
+          <div class="speak-tools"><button type="button" aria-label="切换到打字模式"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M8 16h8"></path></svg></button><button type="button" class="${state.hintOpen ? "active" : ""}" data-toggle-hint>💡 提示</button></div>
         </section>
       </section>`;
   }
