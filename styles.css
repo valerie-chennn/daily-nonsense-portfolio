@@ -255,30 +255,38 @@ button { cursor: pointer; }
 
 /* Expression cards */
 .expression-screen { display: flex; flex-direction: column; }
-.expression-screen > header { display: flex; align-items: center; gap: 12px; padding: 42px 27px 0; }
-.expression-screen > header button { width: 28px; padding: 0; border: 0; background: transparent; font-size: 30px; }
-.expression-screen > header .paper-rules { flex: 1; }
-.expression-title { display: flex; align-items: baseline; gap: 6px; padding: 14px 27px 5px; border-bottom: 1px solid #d4cfc8; }
-.expression-title h2 { margin: 0; font-family: var(--serif); font-size: 22px; }
-.expression-title span { color: #ccc; font-size: 11px; }
-.expression-screen > main { display: flex; flex: 1; flex-direction: column; justify-content: center; padding: 20px 27px 0; }
-.expression-screen > main > p { margin: 8px 0 0; color: #ccc; font-size: 9px; text-align: center; }
-.expression-card { padding: 17px; border: 1px solid rgba(0,0,0,.07); border-radius: 14px; background: white; }
-.expression-card.standalone { box-shadow: 0 2px 7px rgba(0,0,0,.05); }
-.expression-category { display: table; margin-bottom: 15px; padding: 4px 10px; border-radius: 30px; background: rgba(124,92,191,.1); color: var(--purple-dark); font-size: 10px; font-weight: 700; }
-.expression-card > small { color: #aaa; font-size: 9px; }
-.expression-card > b { display: block; margin-bottom: 5px; color: var(--purple); font-size: 10px; }
-.raw-expression { margin: 4px 0 15px; color: #888; font-size: 12px; line-height: 1.5; }
-.better-expression { margin: 0 0 15px; font-size: 14px; font-weight: 600; line-height: 1.6; }
+.expression-topbar { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; padding: calc(var(--status-bar-h) + 6px) 28px 0; }
+.expression-topbar button { padding: 0; border: 0; background: transparent; color: #999; font-size: 14px; user-select: none; }
+.expression-header-wrap { flex-shrink: 0; padding: 12px 28px 0; }
+.expression-title-row { display: flex; flex-shrink: 0; align-items: baseline; gap: 6px; margin-bottom: 4px; padding: 0 28px; }
+.expression-title-row h2 { margin: 0; font-family: "Noto Serif SC", var(--serif); font-size: 22px; font-weight: 900; }
+.expression-title-row span { color: #ccc; font-size: 14px; font-weight: 400; }
+.expression-title-rule { height: 1px; flex-shrink: 0; margin: 0 28px; background: #d4cfc8; }
+.expression-slider-area { flex-shrink: 0; margin-top: 24px; padding: 18px 28px 0; }
+.expression-slider-outer { overflow: hidden; border: 1px solid rgba(0,0,0,.06); border-radius: 14px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.expression-slider-container { width: 100%; overflow: hidden; cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.expression-slider-container:active, .expression-slider-container.dragging { cursor: grabbing; }
+.expression-slider-track { display: flex; flex-direction: row; transition: transform .3s ease; will-change: transform; }
+.expression-slider-item { width: 100%; flex: 0 0 100%; }
+.expression-card { display: flex; flex-direction: column; padding: 22px 20px; }
+.expression-card > small { margin-bottom: 4px; color: #ccc; font-size: 11px; font-weight: 500; }
+.expression-card > b { display: block; margin-bottom: 6px; color: var(--purple); font-size: 11px; font-weight: 600; }
+.raw-expression { margin: 0 0 18px; color: #888; font-size: 15px; line-height: 1.6; }
+.better-expression { margin: 0 0 18px; color: #1a1a1a; font-size: 17px; font-weight: 500; line-height: 1.7; }
 .better-expression mark { padding: 0; background: transparent; color: var(--purple); }
-.pattern-block { padding: 9px 11px; border-radius: 8px; background: rgba(0,0,0,.03); }
+.pattern-block { margin-top: 4px; }
 .pattern-block span, .pattern-block strong { display: block; }
-.pattern-block span { margin-bottom: 4px; color: #999; font-size: 9px; }
-.pattern-block strong { font-size: 11px; line-height: 1.45; }
-.page-dots { display: flex; justify-content: center; gap: 5px; margin-top: 14px; }
-.page-dots i { width: 6px; height: 6px; border-radius: 4px; background: rgba(0,0,0,.12); }
-.page-dots i.active { width: 20px; background: #1a1a1a; }
-.expression-actions { padding: 11px 27px 23px; }
+.pattern-block span { margin-bottom: 6px; color: #999; font-size: 11px; }
+.pattern-block strong { padding: 10px 14px; border-radius: 8px; background: rgba(0,0,0,.03); font-size: 14px; font-weight: 500; line-height: 1.5; }
+.saved-divider { height: 1px; margin: 18px 0 14px; background: rgba(0,0,0,.06); }
+.saved-entry { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 8px 12px; border: 1px solid #ddd6fe; border-radius: 8px; background: #f5f3ff; color: #5b21b6; }
+.saved-entry span { font-size: 12px; font-weight: 600; letter-spacing: .3px; }
+.saved-entry b { color: inherit; font-size: 18px; font-weight: 400; opacity: .6; }
+.page-dots { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 16px; }
+.page-dots button { width: 6px; height: 6px; flex-shrink: 0; padding: 0; border: 0; border-radius: 3px; background: rgba(0,0,0,.12); transition: all .3s ease; }
+.page-dots button.active { width: 20px; background: #1a1a1a; }
+.expression-swipe-hint { display: flex; align-items: center; justify-content: center; gap: 4px; margin: 10px 0 0; color: #ccc; font-size: 11px; text-align: center; }
+.expression-actions { display: flex; min-height: 120px; flex: 1; flex-direction: column; justify-content: center; padding: 0 28px 32px; }
 
 /* Expression book */
 .book-screen { overflow-y: auto; }
@@ -293,7 +301,7 @@ button { cursor: pointer; }
 .book-stats span { color: #999; font-size: 9px; }
 .book-stats i { width: 1px; height: 26px; background: #ddd5ca; }
 .book-list { display: grid; gap: 11px; padding: 14px; }
-.book-list .expression-card { padding: 14px; }
+.book-list .expression-card { padding: 14px; border: 1px solid rgba(0,0,0,.07); border-radius: 14px; background: white; }
 .book-list .raw-expression { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .book-list .pattern-block { display: none; }
 .restart-inline { display: block; margin: 0 auto 25px; padding: 9px 15px; border: 0; border-bottom: 1px solid #1a1a1a; background: transparent; font-weight: 700; }

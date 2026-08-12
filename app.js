@@ -23,6 +23,9 @@
   let feedAnimating = false;
   let feedStartY = 0;
   let feedDragY = 0;
+  let expressionStartX = 0;
+  let expressionDragX = 0;
+  let expressionDragging = false;
 
   const ADJ = [
     "Sleepy", "Curious", "Clueless", "Brave", "Lazy", "Dramatic",
@@ -140,6 +143,8 @@
       state.typeMode = false;
       state.typeDraft = "";
     }
+    const expressionMatch = id.match(/^expression-([1-3])$/);
+    if (expressionMatch) state.expressionIndex = Number(expressionMatch[1]) - 1;
     state.screenId = id;
     setHash(id, options.replace);
     render();
@@ -443,22 +448,35 @@
     const card = data.expressions[index];
     return `
       <article class="expression-card ${standalone ? "standalone" : ""}">
-        <span class="expression-category">${escapeHTML(card.label)}</span>
         <small>你说的</small>
         <p class="raw-expression">${escapeHTML(card.raw)}</p>
-        <b>更地道的说法</b>
+        <b>${escapeHTML(card.feedbackType || "更好的说法")}</b>
         <p class="better-expression">${highlightText(card.better, card.highlights)}</p>
-        <div class="pattern-block"><span>可复用句型</span><strong>${escapeHTML(card.pattern)}</strong></div>
+        <div class="pattern-block"><span>核心句型</span><strong>${escapeHTML(card.pattern)}</strong></div>
+        ${standalone ? `<div class="saved-divider"></div><button class="saved-entry" type="button" data-go="expression-book"><span>已收藏到表达本：#${escapeHTML(card.label)}</span><b>›</b></button>` : ""}
       </article>`;
   }
 
   function renderExpression(index) {
+    state.expressionIndex = index;
     return `
       <section class="app-screen expression-screen">
-        <header><button type="button" data-back>‹</button><div class="paper-rules"><i></i><i></i></div></header>
-        <div class="expression-title"><h2>表达提升</h2><span>${index + 1} / ${data.expressions.length}</span></div>
-        <main>${expressionCard(index, true)}<div class="page-dots">${data.expressions.map((_, i) => `<i class="${i === index ? "active" : ""}"></i>`).join("")}</div><p>左右滑动，查看每轮表达</p></main>
-        <div class="expression-actions"><button class="dark-button" type="button" data-next>${index === 2 ? "查看表达本" : "下一条"}</button></div>
+        <div class="expression-topbar"><button type="button" data-go="settlement">‹ 返回</button></div>
+        <div class="expression-header-wrap"><div class="paper-rules"><i></i><i></i></div></div>
+        <div class="expression-title-row"><h2>表达提升</h2><span data-expression-count>(${index + 1}/${data.expressions.length})</span></div>
+        <div class="expression-title-rule"></div>
+        <main class="expression-slider-area">
+          <div class="expression-slider-outer">
+            <div class="expression-slider-container" tabindex="0" aria-label="表达提升卡片，可左右滑动">
+              <div class="expression-slider-track" style="transform:translateX(-${index * 100}%)">
+                ${data.expressions.map((_, i) => `<div class="expression-slider-item">${expressionCard(i, true)}</div>`).join("")}
+              </div>
+            </div>
+          </div>
+          <div class="page-dots">${data.expressions.map((_, i) => `<button type="button" data-expression-dot="${i}" class="${i === index ? "active" : ""}" aria-label="查看第 ${i + 1} 条表达"></button>`).join("")}</div>
+          <p class="expression-swipe-hint">‹ 左滑查看更多表达</p>
+        </main>
+        <div class="expression-actions"><button class="dark-button" type="button" data-go="feed">回到首页</button></div>
       </section>`;
   }
 
@@ -494,6 +512,79 @@
     }
   }
 
+  function setExpressionSlide(index, options = {}) {
+    const total = data.expressions.length;
+    const nextIndex = Math.max(0, Math.min(total - 1, index));
+    state.expressionIndex = nextIndex;
+
+    const track = screenRoot.querySelector(".expression-slider-track");
+    if (track) {
+      track.style.transition = options.animate === false ? "none" : "transform .3s ease";
+      track.style.transform = `translateX(-${nextIndex * 100}%)`;
+    }
+
+    const count = screenRoot.querySelector("[data-expression-count]");
+    if (count) count.textContent = `(${nextIndex + 1}/${total})`;
+    screenRoot.querySelectorAll("[data-expression-dot]").forEach((dot) => {
+      dot.classList.toggle("active", Number(dot.dataset.expressionDot) === nextIndex);
+    });
+
+    const id = `expression-${nextIndex + 1}`;
+    state.screenId = id;
+    if (options.route !== false) setHash(id, options.replace);
+    const screen = screenMap.get(id);
+    const pageIndex = flow.indexOf(id) + 1;
+    stageControls.textContent = `PAGE ${String(pageIndex).padStart(2, "0")} / ${flow.length} · ${screen.title}`;
+    pageLabel.textContent = screen.title;
+    navContent.querySelectorAll("[data-go]").forEach((button) => {
+      button.classList.toggle("active", button.dataset.go === id);
+    });
+  }
+
+  function bindExpressionInteractions() {
+    const container = screenRoot.querySelector(".expression-slider-container");
+    const track = screenRoot.querySelector(".expression-slider-track");
+    if (!container || !track) return;
+
+    const endDrag = (event) => {
+      if (!expressionDragging) return;
+      expressionDragging = false;
+      container.classList.remove("dragging");
+      if (event?.pointerId != null) container.releasePointerCapture?.(event.pointerId);
+      if (expressionDragX < -40) setExpressionSlide(state.expressionIndex + 1);
+      else if (expressionDragX > 40) setExpressionSlide(state.expressionIndex - 1);
+      else setExpressionSlide(state.expressionIndex, { route: false });
+      expressionDragX = 0;
+    };
+
+    container.addEventListener("pointerdown", (event) => {
+      if (event.target.closest("button")) return;
+      expressionDragging = true;
+      expressionStartX = event.clientX;
+      expressionDragX = 0;
+      container.classList.add("dragging");
+      container.setPointerCapture?.(event.pointerId);
+      track.style.transition = "none";
+    });
+    container.addEventListener("pointermove", (event) => {
+      if (!expressionDragging) return;
+      expressionDragX = event.clientX - expressionStartX;
+      track.style.transform = `translateX(calc(-${state.expressionIndex * 100}% + ${expressionDragX}px))`;
+    });
+    container.addEventListener("pointerup", endDrag);
+    container.addEventListener("pointercancel", endDrag);
+    container.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        setExpressionSlide(state.expressionIndex - 1);
+      }
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        setExpressionSlide(state.expressionIndex + 1);
+      }
+    });
+  }
+
   function render() {
     const screen = screenMap.get(state.screenId);
     const index = flow.indexOf(state.screenId) + 1;
@@ -513,6 +604,9 @@
         syncFeedPosition({ animate: false });
         bindFeedInteractions();
       });
+    }
+    if (state.screenId.startsWith("expression-")) {
+      window.requestAnimationFrame(bindExpressionInteractions);
     }
     stageControls.textContent = `PAGE ${String(index).padStart(2, "0")} / ${flow.length} · ${screen.title}`;
     pageLabel.textContent = screen.title;
@@ -645,6 +739,7 @@
   document.addEventListener("click", (event) => {
     const target = event.target.closest("button, [data-next]");
     if (!target) return;
+    if (target.matches("[data-expression-dot]")) return setExpressionSlide(Number(target.dataset.expressionDot));
     if (target.matches("[data-go]")) return go(target.dataset.go);
     if (target.matches("[data-chat-continue]")) return continueOpeningDialogue();
     if (target.matches("[data-next]")) return next();

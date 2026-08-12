@@ -193,6 +193,7 @@
         raw: "Wait, sell? I no understand. Horse not good. You tell me first.",
         better: "Wait, sell the horse? I don't understand. Tell me what happened first.",
         highlights: ["Tell me", "first"],
+        feedbackType: "更地道的说法",
         label: "追问细节",
         pattern: "Tell me [发生了什么] first."
       },
@@ -200,6 +201,7 @@
         raw: "14 years carry bags, very hard. Sell like old shoes, not fair.",
         better: "I carried bags for 14 years. Selling me like old shoes is just not fair.",
         highlights: ["carried", "for", "not fair"],
+        feedbackType: "更地道的说法",
         label: "附和感受",
         pattern: "[某人] carried [某物] for [时间]."
       },
@@ -207,6 +209,7 @@
         raw: "Zhu Bajie no right. 14 year work not just 20k.",
         better: "Zhu Bajie has no right to sell you. Your 14 years of work are worth much more than that.",
         highlights: ["has no right to", "worth much more"],
+        feedbackType: "更地道的说法",
         label: "坚定表态",
         pattern: "[某人] has no right to [做什么]."
       }
