@@ -67,6 +67,16 @@
     "Pirate", "Professor", "Detective", "Ghost"
   ];
 
+  // The Feed swaps full-height cards immediately. Warm and decode every cover
+  // up front so the next card never shows an empty image block after a swipe.
+  const feedCoverCache = data.feed.map((item) => {
+    const image = new Image();
+    image.decoding = "async";
+    image.src = item.cover;
+    image.decode?.().catch(() => {});
+    return image;
+  });
+
   function randomItem(list) {
     return list[Math.floor(Math.random() * list.length)];
   }
@@ -257,7 +267,7 @@
             <p class="news-source">${escapeHTML(item.source)}</p>
             <i class="headline-rule"></i>
             <h2>${item.headline.map((line) => `<span>${escapeHTML(line)}</span>`).join("")}</h2>
-            <figure><img src="${item.cover}" alt="${escapeHTML(item.headline.join("，"))}" /></figure>
+            <figure><img src="${item.cover}" alt="${escapeHTML(item.headline.join("，"))}" loading="eager" decoding="async" /></figure>
             <div class="statements-section">
               <div class="statements-label"><span>STATEMENTS</span><i></i></div>
               ${item.reactions.map((reaction, index) => `
