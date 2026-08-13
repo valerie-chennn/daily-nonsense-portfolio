@@ -159,7 +159,7 @@ button { cursor: pointer; }
 .chat-header strong { overflow: hidden; color: #1a1a1a; font-size: 15px; font-weight: 700; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
 .chat-header span { overflow: hidden; color: #999; font-size: 10px; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
 .chat-header b { flex-shrink: 0; padding: 3px 10px; border-radius: 10px; background: rgba(184,55,42,.08); color: #b8372a; font-size: 11px; font-weight: 700; }
-.chat-history { display: flex; flex: 1; min-height: 0; flex-direction: column; gap: 6px; overflow-y: auto; padding: 12px 16px; scroll-behavior: smooth; }
+.chat-history { display: flex; flex: 1; min-height: 0; flex-direction: column; gap: 6px; overflow-y: auto; padding: 12px 16px; scroll-behavior: auto; }
 .chat-context { display: flex; flex-direction: column; align-items: center; gap: 0; padding: 16px 0 12px; color: #b8aa98; text-align: center; }
 .chat-context p { margin: 0; color: #b8aa98; font-size: 12px; line-height: 1.5; }
 .chat-context p:first-child { margin-bottom: 6px; }
