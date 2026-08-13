@@ -462,6 +462,26 @@
       </section>`;
   }
 
+  function updateMicControls() {
+    const wrap = screenRoot.querySelector(".mic-wrap");
+    const button = wrap?.querySelector("[data-mic]");
+    const label = screenRoot.querySelector(".mic-label");
+    if (!wrap || !button || !label) return;
+
+    const micLabel = state.mic === "recording"
+      ? "录音中…"
+      : state.mic === "transcribing"
+        ? "识别中…"
+        : "按住说话";
+
+    wrap.classList.toggle("recording", state.mic === "recording");
+    button.setAttribute("aria-label", micLabel);
+    button.innerHTML = state.mic === "transcribing"
+      ? '<span class="spinner"></span>'
+      : micIcon();
+    label.textContent = micLabel;
+  }
+
   function renderReply(turnIndex) {
     const replies = state.npcReplies[turnIndex] || data.turns[turnIndex].replies;
     const messages = visibleMessages(turnIndex, true);
@@ -719,6 +739,7 @@
     if (state.mic === "idle") {
       state.mic = "recording";
       capturedSpeech = "";
+      updateMicControls();
       const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (Recognition) {
         speechRecognition = new Recognition();
@@ -731,14 +752,14 @@
         speechRecognition.onerror = () => {};
         try { speechRecognition.start(); } catch (_) {}
       }
-      return render();
+      return;
     }
     if (speechRecognition) {
       try { speechRecognition.stop(); } catch (_) {}
       speechRecognition = null;
     }
     state.mic = "transcribing";
-    render();
+    updateMicControls();
     const turnIndex = Number(state.screenId.slice(-1)) - 1;
     micTimer = window.setTimeout(() => {
       submitUserTurn(turnIndex, capturedSpeech || randomItem(simulatedUtterances[turnIndex]));
