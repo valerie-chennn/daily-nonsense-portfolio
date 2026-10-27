@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#f7f6f3" />
+  <meta name="description" content="点点多模态穿搭问图概念原型" />
+  <title>点点 · 从一张图到一套穿搭</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="showcase">
+    <aside class="intro-panel">
+      <header class="intro-brand"><span class="dian-mark"></span><b>点点</b><small>CONCEPT DEMO</small></header>
+      <section class="intro-copy">
+        <p class="eyebrow">多模态穿搭问图探索</p>
+        <h1>从一张图，<br><em>到一套能穿的方案</em></h1>
+        <p>用户只发来图片时，点点先提供可能的任务入口；用户一旦选择，就直接生成第一版结果，并支持继续调整和购买。</p>
+      </section>
+      <ol class="journey">
+        <li class="active" data-journey="intent"><span>01</span><div><b>推测用户意图</b><small>看懂图片，提供具体任务</small></div></li>
+        <li data-journey="context"><span>02</span><div><b>只补必要的信息</b><small>缺少个人依据时再询问</small></div></li>
+        <li data-journey="result"><span>03</span><div><b>交付可操作结果</b><small>判断、标注与生成在一起</small></div></li>
+        <li data-journey="shop"><span>04</span><div><b>把方案变成现实</b><small>进入 REDshop 试穿与选购</small></div></li>
+      </ol>
+      <p class="prototype-note">概念原型 · 图片、笔记与商品信息仅作交互演示</p>
+    </aside>
+
+    <section class="phone-wrap" aria-label="点点穿搭问图交互原型">
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><i></i><span>▮▮▮　◔</span></div>
+
+        <section class="screen active" data-screen="intent">
+          <header class="chat-head"><button aria-label="返回">‹</button><div><span class="dian-mark small"></span><strong>点点</strong><small>生活场景 AI 助手</small></div><button aria-label="更多">•••</button></header>
+          <div class="chat-body intent-body">
+            <div class="user-image-bubble"><img src="./assets/feed-look.png" alt="用户发送的灰色气球裤穿搭图片" /></div>
+            <article class="assistant-message">
+              <div class="assistant-label"><span class="dian-mark tiny"></span>点点看了图片</div>
+              <p>这是一套以灰色气球裤为主的穿搭。你可能想试试：</p>
+              <div class="intent-grid">
+                <button class="intent-card primary-intent" data-go="refine"><span>◇</span><b>改成通勤风</b><small>生成适合上班的版本</small></button>
+                <button class="intent-card" data-go="fit-start"><span>◎</span><b>看看适不适合我</b><small>用我的试穿形象判断</small></button>
+                <button class="intent-card" data-demo-toast="这条分支将在下一版展开"><span>▣</span><b>围绕这条裤子搭</b><small>保留裤子，重新搭整套</small></button>
+                <button class="intent-card" data-go="similar"><span>⌕</span><b>找相似穿搭</b><small>查看相关社区笔记</small></button>
+              </div>
+              <div class="related-inline" id="relatedInline" hidden>
+                <div class="inline-heading"><b>相似穿搭</b><small>来自小红书社区</small></div>
+                <div class="mini-note-row">
+                  <button><img src="./assets/look-sneaker.png" alt="气球裤与运动鞋穿搭" /><span>气球裤＋运动鞋</span></button>
+                  <button><img src="./assets/look-loafer.png" alt="气球裤与乐福鞋穿搭" /><span>气球裤＋乐福鞋</span></button>
+                  <button><img src="./assets/look-ballet.png" alt="气球裤与芭蕾鞋穿搭" /><span>气球裤＋芭蕾鞋</span></button>
+                </div>
+              </div>
+            </article>
+          </div>
+          <div class="composer"><button>▣</button><span>发消息或按住说话...</span><button>＋</button></div>
+        </section>
+
+        <section class="screen" data-screen="fit-start">
+          <header class="chat-head"><button data-go="intent" aria-label="返回">‹</button><div><span class="dian-mark small"></span><strong>点点</strong><small>个人穿搭判断</small></div><button aria-label="更多">•••</button></header>
+          <div class="chat-body fit-start-body">
+            <div class="choice-bubble">看看这套适不适合我</div>
+            <article class="assistant-message fit-request">
+              <div class="assistant-label"><span class="dian-mark tiny"></span>点点</div>
+              <p class="fit-question">可以。要判断这套穿在你身上的比例，我需要一张你的正面全身形象。</p>
+              <button class="saved-profile" data-go="fit-result">
+                <img src="./assets/profile-avatar.png" alt="REDshop 中保存的个人试穿形象" />
+                <span><small>REDshop 已保存</small><b>使用我的试穿形象</b><em>正面全身形象</em></span>
+                <i>›</i>
+              </button>
+              <button class="upload-profile" data-demo-toast="已打开全身照选择器"><span>＋</span><b>换一张全身照</b></button>
+              <p class="privacy-note">形象由你选择，仅用于本次穿搭判断。</p>
+            </article>
+          </div>
+          <div class="composer"><button>▣</button><span>也可以补充身高或穿着偏好...</span><button>＋</button></div>
+        </section>
+
+        <section class="screen" data-screen="fit-result">
+          <header class="result-head"><button data-go="fit-start" aria-label="返回">‹</button><div><b>适合度判断</b><small>参考图 × 我的试穿形象</small></div><button aria-label="更多">•••</button></header>
+          <div class="result-scroll fit-result-scroll">
+            <div class="result-visual fit-visual">
+              <img src="./assets/look-sneaker.png" alt="按用户个人比例生成的穿搭示意" />
+              <span class="ai-label">你的穿搭示意</span>
+              <button class="fit-pin fit-waist" data-demo-toast="短外套落在裤腰附近，腰线会更清楚"><i></i><span>外套到腰线</span></button>
+              <button class="fit-pin fit-trouser" data-demo-toast="高腰和宽松裤腿与你的比例匹配，可以保留"><i></i><span>裤型可以保留</span></button>
+              <button class="fit-pin fit-shoe" data-demo-toast="鞋底保持轻量，减少下半身的视觉重量"><i></i><span>鞋底轻一点</span></button>
+            </div>
+            <section class="fit-reasons">
+              <div class="fit-summary">
+                <small>点点的判断</small>
+                <b>这套适合你，重点调整外套长度</b>
+                <p>下摆缩到裤腰附近，比例会更清楚。</p>
+              </div>
+              <div class="fit-support"><span>裤型可以保留</span><span>选择轻量平底鞋</span></div>
+            </section>
+            <div class="quick-actions fit-actions">
+              <button data-demo-toast="已准备其他外套长度">换一种外套长度</button>
+              <button data-show-fit-related>看相似身形穿搭</button>
+            </div>
+            <section class="related-result" id="fitRelated" hidden>
+              <header><div><b>相似身形穿搭</b><small>来自小红书社区</small></div><button aria-label="更多相似穿搭">更多 ›</button></header>
+              <div class="result-notes">
+                <button><img src="./assets/look-loafer.png" alt="短外套气球裤穿搭" /><span>短外套如何对齐高腰线</span></button>
+                <button><img src="./assets/look-ballet.png" alt="轻量鞋型气球裤穿搭" /><span>气球裤搭轻量鞋型</span></button>
+              </div>
+            </section>
+            <button class="shop-entry" data-go="shop"><span><small>想实际试穿？</small><b>去 REDshop 找同版型单品</b></span><em>→</em></button>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="similar">
+          <header class="chat-head"><button data-go="intent" aria-label="返回">‹</button><div><span class="dian-mark small"></span><strong>点点</strong><small>图片搜索</small></div><button aria-label="更多">•••</button></header>
+          <div class="chat-body similar-body">
+            <div class="choice-bubble">找相似穿搭</div>
+            <article class="assistant-message similar-message">
+              <div class="assistant-label"><span class="dian-mark tiny"></span>点点</div>
+              <p class="similar-lead">我先按这套的主要特征找：</p>
+              <div class="search-signals" aria-label="图片搜索特征">
+                <button class="active">灰色气球裤</button><button class="active">短款外套</button><button class="active">棕灰配色</button>
+              </div>
+              <div class="search-toolbar">
+                <div class="search-filters" aria-label="相似方向">
+                  <button class="active" data-similar-filter="overall">整体最像</button>
+                  <button data-similar-filter="trouser">更像裤型</button>
+                  <button data-similar-filter="color">更像配色</button>
+                  <button data-similar-filter="jacket">更像外套</button>
+                </div>
+                <small>找到 12 篇</small>
+              </div>
+              <div class="similar-note-grid" id="similarNoteGrid">
+                <button class="search-note" data-note-tags="overall trouser" data-note-title="气球裤的轻松通勤穿法" data-note-image="./assets/look-sneaker.png" data-note-author="@南方衣橱 · 8,214 赞">
+                  <img src="./assets/look-sneaker.png" alt="气球裤与运动鞋的社区穿搭笔记" /><span><b>气球裤的轻松通勤穿法</b><small>@南方衣橱 · 8,214 赞</small><em>整体相似</em></span>
+                </button>
+                <button class="search-note" data-note-tags="trouser jacket" data-note-title="短外套怎么搭气球裤" data-note-image="./assets/look-loafer.png" data-note-author="@一天三套 · 3,706 赞">
+                  <img src="./assets/look-loafer.png" alt="短外套与气球裤的社区穿搭笔记" /><span><b>短外套怎么搭气球裤</b><small>@一天三套 · 3,706 赞</small><em>裤型相似</em></span>
+                </button>
+                <button class="search-note" data-note-tags="color overall" data-note-title="低饱和棕灰配色参考" data-note-image="./assets/look-ballet.png" data-note-author="@灰调日记 · 6,118 赞">
+                  <img src="./assets/look-ballet.png" alt="棕灰配色的社区穿搭笔记" /><span><b>低饱和棕灰配色参考</b><small>@灰调日记 · 6,118 赞</small><em>配色相似</em></span>
+                </button>
+                <button class="search-note" data-note-tags="jacket color" data-note-title="短夹克的三个日常版本" data-note-image="./assets/look-alt-jacket.png" data-note-author="@今天穿什么 · 2,943 赞">
+                  <img src="./assets/look-alt-jacket.png" alt="短夹克的社区穿搭笔记" /><span><b>短夹克的三个日常版本</b><small>@今天穿什么 · 2,943 赞</small><em>外套相似</em></span>
+                </button>
+              </div>
+              <button class="more-notes" data-demo-toast="已换一组相似笔记">再看 4 篇</button>
+            </article>
+          </div>
+          <div class="composer"><button>▣</button><span>继续描述你想找的穿搭...</span><button>＋</button></div>
+          <div class="note-sheet" id="noteSheet" aria-hidden="true">
+            <div class="sheet-handle"></div>
+            <button class="note-close" id="closeNoteSheet" aria-label="关闭">×</button>
+            <img id="notePreviewImage" src="./assets/look-sneaker.png" alt="社区笔记预览" />
+            <div class="note-preview-copy"><small>小红书社区笔记</small><b id="notePreviewTitle">气球裤的轻松通勤穿法</b><span id="notePreviewAuthor">@南方衣橱 · 8,214 赞</span></div>
+            <div class="note-actions">
+              <button data-demo-toast="已打开原笔记">打开原笔记</button>
+              <button data-reference-generate>按这篇改一版</button>
+              <button data-go="shop">找图中同款</button>
+            </div>
+          </div>
+          <div class="sheet-mask" id="noteSheetMask"></div>
+        </section>
+
+        <section class="screen" data-screen="refine">
+          <header class="result-head"><button data-go="intent" aria-label="返回点点">‹</button><div><b>通勤版本</b><small>基于刚才的图片生成</small></div><button aria-label="更多">•••</button></header>
+          <div class="result-scroll">
+            <div class="result-visual" id="resultVisual">
+              <img id="resultLook" src="./assets/look-sneaker.png" alt="点点生成的气球裤通勤穿搭" />
+              <span class="ai-label" id="resultImageLabel">AI 穿搭示意</span>
+              <button class="compare-original" id="compareOriginal">查看原图</button>
+              <button class="result-pin result-jacket" data-edit="jacket"><i></i><span>皮衣 → 短外套</span></button>
+              <button class="result-pin result-shoes" data-edit="shoes"><i></i><span>短靴 → 运动鞋</span></button>
+            </div>
+            <section class="change-card">
+              <div class="change-title"><span>这版具体换了什么</span><b>日常通勤</b></div>
+              <div class="change-list">
+                <button data-edit="jacket"><small>外套</small><span><s>机车皮衣</s><em>→</em><b>简洁短外套</b></span><i>办公更自然</i></button>
+                <button data-edit="shoes"><small>鞋子</small><span><s>短靴</s><em>→</em><b id="shoeBenefit">轻量运动鞋</b></span><i>步行更轻便</i></button>
+              </div>
+            </section>
+            <div class="quick-actions">
+              <button data-edit="shoes">换双鞋试试</button>
+              <button data-edit="jacket">换件外套</button>
+              <button data-show-related-result>看相似穿搭</button>
+            </div>
+            <section class="related-result" id="relatedResult" hidden>
+              <header><div><b>相似穿搭</b><small>来自小红书社区</small></div><button aria-label="更多相似穿搭">更多 ›</button></header>
+              <div class="result-notes">
+                <button><img src="./assets/look-loafer.png" alt="乐福鞋通勤穿搭" /><span>气球裤的利落通勤穿法</span></button>
+                <button><img src="./assets/look-ballet.png" alt="芭蕾鞋通勤穿搭" /><span>不穿高跟鞋的轻盈版本</span></button>
+              </div>
+            </section>
+            <button class="shop-entry" data-go="shop"><span><small>喜欢这套？</small><b>去 REDshop 找到这套里的单品</b></span><em>→</em></button>
+          </div>
+          <div class="edit-sheet" id="editSheet" aria-hidden="true">
+            <div class="sheet-handle"></div><div class="sheet-title"><div><small>选择后立即查看整套效果</small><b id="editTitle">换一双鞋</b></div><button id="closeSheet">×</button></div>
+            <div class="option-list" id="shoeOptions">
+              <button class="selected" data-category="shoes" data-look="sneaker" data-image="./assets/look-sneaker.png"><img class="option-thumb shoes" src="./assets/look-sneaker.png" alt="复古运动鞋效果" /><span><b>复古运动鞋</b><small>轻松、适合走路</small></span><em>✓</em></button>
+              <button data-category="shoes" data-look="loafer" data-image="./assets/look-loafer.png"><img class="option-thumb shoes" src="./assets/look-loafer.png" alt="乐福鞋效果" /><span><b>乐福鞋</b><small>更利落、更通勤</small></span><em></em></button>
+              <button data-category="shoes" data-look="ballet" data-image="./assets/look-ballet.png"><img class="option-thumb shoes" src="./assets/look-ballet.png" alt="芭蕾鞋效果" /><span><b>芭蕾鞋</b><small>更轻盈</small></span><em></em></button>
+            </div>
+            <div class="option-list" id="jacketOptions" hidden>
+              <button class="selected" data-category="jacket" data-look="jacket-brown" data-image="./assets/look-sneaker.png"><img class="option-thumb jacket" src="./assets/look-sneaker.png" alt="短款棕色外套效果" /><span><b>短款棕色外套</b><small>轻松、适合日常办公</small></span><em>✓</em></button>
+              <button data-category="jacket" data-look="jacket-dark" data-image="./assets/look-alt-jacket.png"><img class="option-thumb jacket" src="./assets/look-alt-jacket.png" alt="深色短外套效果" /><span><b>深色短外套</b><small>更稳重</small></span><em></em></button>
+            </div>
+            <button class="apply-change" id="applyChange">用这个版本继续</button>
+          </div>
+          <div class="sheet-mask" id="sheetMask"></div>
+        </section>
+
+        <section class="screen" data-screen="shop">
+          <header class="shop-head"><button data-back-result aria-label="返回点点方案">‹</button><div><strong><i>RED</i>shop</strong><small>来自点点的穿搭方案</small></div><button aria-label="购物袋">▢</button></header>
+          <div class="shop-scroll">
+            <div class="shop-hero">
+              <img id="shopLook" src="./assets/look-sneaker.png" alt="在 REDshop 中查看点点通勤搭配" />
+              <button class="product-dot jacket-dot" data-demo-toast="短款棕色外套 · ¥699"><i></i><span>短外套</span></button>
+              <button class="product-dot trouser-dot" data-demo-toast="灰色气球裤 · ¥429"><i></i><span>气球裤</span></button>
+              <button class="product-dot shoe-dot" data-demo-toast="复古运动鞋 · ¥559"><i></i><span>运动鞋</span></button>
+            </div>
+            <section class="shop-copy"><p>点点搭配方案</p><h2>轻松通勤 · 3 件可购买单品</h2><div class="shop-benefits"><span>保留已有单品</span><span>支持个人试穿</span></div></section>
+            <div class="product-list">
+              <article><i class="product-thumb jacket-thumb"></i><div><small>推荐购买</small><b>短款棕色外套</b><span>轻薄羊毛混纺</span></div><strong>¥699</strong></article>
+              <article><i class="product-thumb shoe-thumb"></i><div><small>推荐购买</small><b>复古运动鞋</b><span>通勤步行友好</span></div><strong>¥559</strong></article>
+              <article class="owned"><i class="product-thumb trouser-thumb"></i><div><small>已有相似单品</small><b>灰色气球裤</b><span>沿用你的衣橱</span></div><strong>已拥有</strong></article>
+            </div>
+          </div>
+          <div class="shop-bar"><button class="secondary" data-demo-toast="已进入个人试穿预览">试穿整套</button><button class="primary" data-demo-toast="已加入 2 件推荐单品">选择商品</button></div>
+        </section>
+      </div>
+    </section>
+
+    <aside class="rationale-panel">
+      <p class="case-path" id="stepPath">CORE / 意图分流</p>
+      <h2 id="stepTitle">同一张穿搭图，背后可能是不同任务</h2>
+      <section class="case-section problem-block">
+        <small>设计目标</small>
+        <p id="stepProblem">让只发图片的用户不必先组织问题，也能快速进入最可能的任务。</p>
+      </section>
+      <section class="case-section design-block">
+        <small>机制设计</small>
+        <p id="stepDesign">基于图片内容提供具体任务入口，再由不同意图决定后续是直接生成、补充个人信息，还是搜索社区内容。</p>
+      </section>
+      <div class="ability-tags" id="stepTags"><span>图片理解</span><span>意图识别</span><span>问答策略</span></div>
+      <section class="demo-navigation" id="demoNavigation" hidden>
+        <small>DEMO NAVIGATION</small>
+        <b>本条路径的核心体验已完成</b>
+        <p id="demoNavigationCopy">返回主入口，还可以体验另外两种图片任务。</p>
+        <button id="returnToDemoHome"><span>返回主入口，体验其他路径</span><em>↩</em></button>
+      </section>
+    </aside>
+  </main>
+  <div class="toast" id="toast">已更新</div>
+  <script src="./app.js"></script>
+</body>
+</html>
