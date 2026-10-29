@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#171716" />
+  <meta name="description" content="主动搜索的一种可能：基于用户 Query 构建临时 Tab · Valerie Chen 的抖音搜索交互概念作品" />
+  <meta name="author" content="Valerie Chen" />
+  <title>抖音 · 临时搜索 Tab</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./search-entry.css" />
+</head>
+<body>
+  <button id="mobileGuide" class="mobile-guide" aria-label="打开作品说明">☰</button>
+  <div id="guideMask" class="guide-mask"></div>
+  <main class="showcase">
+    <aside id="introPanel" class="intro-panel">
+      <header class="intro-brand"><span class="douyin-mark">♪</span><b>抖音搜索</b><small>CONCEPT DEMO</small></header>
+      <section class="intro-copy">
+        <p class="eyebrow">AI 视频搜索交互探索</p>
+        <h1>让主动搜索<br><em>成为一个临时 Tab</em></h1>
+        <p>围绕用户当下的兴趣，组织想看的内容</p>
+      </section>
+      <ol class="journey">
+        <li class="active" data-step="search"><span>01</span><div><b>选择一个真实搜索</b><small>点击搜索框展开四个体验词</small></div></li>
+        <li data-step="topic"><span>02</span><div><b>生成临时 Tab</b><small>保留原始问题，内容按主题组织</small></div></li>
+        <li data-step="follow"><span>03</span><div><b>顺着兴趣继续看</b><small>相关搜索在同一 Tab 接着展开</small></div></li>
+        <li data-step="watch"><span>04</span><div><b>进入沉浸观看</b><small>返回后仍在原来的内容位置</small></div></li>
+      </ol>
+      <p class="prototype-note">概念原型 · 部分内容与数据仅作交互演示</p>
+    </aside>
+
+    <section class="phone-wrap" aria-label="抖音临时搜索 Tab 交互原型">
+      <div class="phone">
+        <div class="dynamic-island"></div>
+        <section class="screen active search-screen" data-screen="search">
+          <div class="statusbar dark-text"><b>20:06</b><span>▮▮▮　◉</span></div>
+          <header class="search-head">
+            <form id="searchForm" class="search-box"><span class="search-icon">⌕</span><input id="searchInput" autocomplete="off" readonly aria-haspopup="listbox" placeholder="搜索你想看的" /><button type="submit">搜索</button></form>
+          </header>
+          <div class="search-scroll">
+            <div id="searchGuide" class="search-guide"><span>↑</span> 点击搜索框，试试 4 个场景</div>
+            <section id="queryChooser" class="query-chooser"><p class="section-label">试试这样搜</p><div id="presetList" class="preset-list"></div></section>
+            <section class="history-block"><header><b>搜索记录</b><button id="clearHistory">清空</button></header><div id="historyList" class="history-list"></div></section>
+            <section class="hot-block"><header><b>抖音热榜</b><span>实时热点 ›</span></header><ol><li><i>1</i><span>秋天适合去哪里旅行</span><em>热</em></li><li><i>2</i><span>最近值得看的综艺</span></li><li><i>3</i><span>独居生活的幸福瞬间</span></li></ol></section>
+          </div>
+        </section>
+
+        <section class="screen topic-screen" data-screen="topic">
+          <div class="statusbar dark-text"><b>20:07</b><span>▮▮▮　◉</span></div>
+          <header class="douyin-head">
+            <button class="menu-button" aria-label="菜单">☰</button>
+            <nav class="channel-tabs" aria-label="首页频道"><button id="recommendTab">推荐</button><button id="tempTab" class="active">临时 Tab</button></nav>
+            <button id="topicSearch" class="head-search" aria-label="搜索">⌕</button>
+          </header>
+          <div id="topicScroll" class="topic-scroll"></div>
+          <footer class="main-nav"><button class="active">首页⌄</button><button>朋友</button><button class="create">＋</button><button>消息</button><button>我</button></footer>
+        </section>
+
+        <section class="screen player-screen" data-screen="player">
+          <div id="playerBackdrop" class="player-backdrop"><div class="player-gradient"></div><button id="playerBack" class="player-back" aria-label="返回专题">‹</button><div class="play-symbol">▶</div><aside class="player-actions"><button>♡<small>19.3万</small></button><button>◌<small>5004</small></button><button>☆<small>1.5万</small></button><button>↗<small>分享</small></button></aside><div class="player-copy"><b id="playerAuthor">@作者</b><h2 id="playerTitle">视频标题</h2><p id="playerContext">来自临时搜索 Tab</p></div><div class="player-progress"><i></i></div></div>
+        </section>
+        <div id="toast" class="toast"></div>
+      </div>
+    </section>
+
+    <aside class="rationale-panel">
+      <p id="casePath" class="case-path">01 · 主动搜索</p><span id="caseEyebrow">主动搜索的一种可能：</span><h2 id="caseTitle">基于用户 Query<br>构建临时 Tab</h2><ul id="caseSummary"><li>根据搜索意图组织回答</li><li>在 Tab 内以 Feed 流呈现相关内容</li><li>随用户进一步的搜索继续展开</li></ul><button id="caseAction">尝试四种搜索场景 <span>→</span></button><p class="hint">点击搜索框，尝试四种不同的搜索场景</p>
+    </aside>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>
